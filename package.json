@@ -4,6 +4,9 @@
   "description": "control clusters",
   "license": "MIT",
   "main": "index.js",
+  "bin" : {
+    "clusterctl": "bin/ctl.js"
+  },
   "scripts": {
     "blanket": {
       "pattern": "//^((?!(node_modules|test)).)*$/"
