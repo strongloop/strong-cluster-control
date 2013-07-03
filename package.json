@@ -5,7 +5,7 @@
   "license": "MIT",
   "main": "index.js",
   "bin" : {
-    "clusterctl": "bin/ctl.js"
+    "clusterctl": "bin/cli.js"
   },
   "scripts": {
     "blanket": {
