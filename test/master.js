@@ -61,4 +61,12 @@ describe('master', function() {
     });
   });
 
+  it('should start and stop', function(done) {
+    master.start();
+    master.once('start', function() {
+      master.stop();
+      master.once('stop', done);
+    });
+  });
+
 });
