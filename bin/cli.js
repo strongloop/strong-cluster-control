@@ -1,10 +1,15 @@
 #!/usr/bin/env node
 
 var ADDR = require('../lib/ctl').ADDR;
+var Client = require('../lib/client');
 var cmd = require('../lib/cmd');
 var net = require('net');
 var program = require('commander');
 var version = require('../package.json').version;
+
+var request = {
+  cmd: 'status'
+};
 
 program
   .version(version)
@@ -15,20 +20,20 @@ program
   .command('status')
   .description('status of cluster, default command')
   .action(function() {
-    req.cmd = 'status';
+    request.cmd = 'status';
   });
 
 // XXX temporary, for testing
 program
   .command('disconnect')
   .action(function() {
-    req.cmd = 'disconnect';
+    request.cmd = 'disconnect';
   });
 
 program
   .command('fork')
   .action(function() {
-    req.cmd = 'fork';
+    request.cmd = 'fork';
   });
 
 //   - set-workers N
@@ -40,11 +45,7 @@ program.to = ADDR;
 
 program.parse(process.argv);
 
-var request = {
-  cmd: 'status'
-};
-
-var ctl = net.connect(program.to, connect)
+var client = new Client(program.to, request, response)
   .on('end', function() {
     console.log('cli - on end');
   })
@@ -52,13 +53,6 @@ var ctl = net.connect(program.to, connect)
     console.log('cli - on error', er);
     process.exit(1);
   });
-
-function connect() {
-  console.log('cli - connect from', this.address(), 'to', this.remoteAddress);
-
-  cmd.send(this, request);
-  cmd.recv(this, response);
-}
 
 function response(rsp) {
   console.log('cli - response', rsp);
