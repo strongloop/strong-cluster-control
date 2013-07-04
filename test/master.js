@@ -69,4 +69,11 @@ describe('master', function() {
     });
   });
 
+  it('should return unsupported requests', function(done) {
+    master.request({cmd:'no-such-command'}, function(rsp) {
+      assert(/no-such-command/.test(rsp.error));
+      done();
+    });
+  });
+
 });
