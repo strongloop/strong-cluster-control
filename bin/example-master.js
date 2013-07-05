@@ -1,7 +1,23 @@
-try {
-  var master = require('cluster-control');
-} catch(er) {
-  var master = require('../index.js');
+var cluster = require('cluster');
+var control = require('../index.js');
+var program = require('commander');
+
+program
+  .option('-p,--path <path>', 'listen on socket for control, default to ' + control.ADDR)
+  .option('-e,--exec <script>', 'execute worker script, default to same as master')
+  .option('-s,--size <size>', 'start cluster at size workers, default to cpu count')
+  ;
+
+program.parse(process.argv);
+
+if(program.exec) {
+  cluster.setupMaster({
+    exec: program.exec
+  });
 }
 
-master.start();
+control.start({
+  size: program.size,
+  //env: null, // XXX because it MUST be passed to .fork()
+  path: program.path,
+});

@@ -16,7 +16,7 @@ var display = displayStatusResponse;
 
 program
   .version(version)
-  .option('-t, --to <socket>', 'cluster ctl socket to connect to, default to $CWD/clusterctl')
+  .option('-p,--path <path>', 'cluster ctl socket to connect to, default to ' + Client.ADDR)
   ;
 
 program
@@ -57,11 +57,9 @@ program
 //   - add-workers [1]
 //   - sub-workers [1]
 
-program.to = ADDR;
-
 program.parse(process.argv);
 
-var client = new Client(program.to, request, response)
+var client = new Client(program.path, request, response)
   .on('error', function(er) {
     console.error('Communication error (' + er.message + '), check master is listening on', program.to);
     process.exit(1);

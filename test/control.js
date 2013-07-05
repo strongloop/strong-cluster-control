@@ -1,6 +1,13 @@
 var assert = require('assert');
 var EventEmitter = require('events').EventEmitter;
 var net = require('net');
+var path = require('path');
+
+describe('client', function() {
+  it('should expose default socket address', function() {
+    assert.equal(Client.ADDR, ctl.ADDR);
+  });
+});
 
 var Client = require('../lib/client');
 var ctl = require('../lib/ctl');
@@ -64,5 +71,20 @@ describe('control channel', function() {
       ctl.stop(done);
     });
   });
+
+  it('should listen on specific path', function(done) {
+    var master = new EventEmitter();
+    ctl.start(master, {addr:'_ctl'});
+
+    master.on('listening', function(server) {
+      assert.equal(server.address(), '_ctl');
+      net.connect('_ctl')
+        .on('connect', function() {
+          this.destroy();
+          server.close(done);
+        });
+    });
+  });
+
 });
   
