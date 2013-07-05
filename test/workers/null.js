@@ -2,15 +2,16 @@
 
 var assert = require('assert');
 var cluster = require('cluster');
+var debug = require('../../lib/debug');
 
-console.log('worker start', process.pid);
+debug('worker start', process.pid);
 
 assert(!cluster.isMaster);
 
 process.on('disconnect', function() {
-  console.log('worker disconnect', process.pid);
+  debug('worker disconnect', process.pid);
 });
 
 process.on('exit', function() {
-  console.log('worker exit', process.pid);
+  debug('worker exit', process.pid);
 });

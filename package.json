@@ -24,7 +24,8 @@
     "email": "sam@strongloop.com"
   },
   "dependencies": {
-    "commander": ""
+    "commander": "",
+    "debuglog": ""
   },
   "devDependencies": {
     "mocha": "~1.9.0",

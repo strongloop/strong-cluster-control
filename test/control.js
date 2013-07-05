@@ -60,7 +60,6 @@ describe('control channel', function() {
     var server = ctl.start(master, {addr:'/a/bad/path'});
 
     master.once('error', function(er) {
-      console.log('er', er);
       assert(er);
       ctl.stop(done);
     });

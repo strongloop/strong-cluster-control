@@ -1,9 +1,10 @@
 var assert = require('assert');
 var cluster = require('cluster');
 
+var debug = require('../lib/debug');
 var master = require('../lib/master');
 
-console.log('master', process.pid);
+debug('master', process.pid);
 
 cluster.setupMaster({
   exec: 'test/workers/null.js'
@@ -11,7 +12,7 @@ cluster.setupMaster({
 
 describe('master', function() {
   afterEach(function(done) {
-    console.log('afterEach workers', Object.keys(cluster.workers).length);
+    debug('afterEach workers', Object.keys(cluster.workers).length);
     cluster.disconnect(done);
   });
 
