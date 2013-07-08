@@ -75,11 +75,17 @@ describe('master', function() {
     cluster.fork();
   });
 
-  it('should start and stop', function(done) {
+  it('should start and stop, notifying with events', function(done) {
     master.start();
     master.once('start', function() {
       master.stop();
       master.once('stop', done);
+    });
+  });
+
+  it('should start and stop, notifying with callbacks', function(done) {
+    master.start(function() {
+      master.stop(done);
     });
   });
 
