@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 
+var net = require('net');
+
+var program = require('commander');
+
 var ADDR = require('../lib/ctl').ADDR;
 var Client = require('../lib/client');
 var cmd = require('../lib/cmd');
-var net = require('net');
-var program = require('commander');
 var version = require('../package.json').version;
 
 var request = {

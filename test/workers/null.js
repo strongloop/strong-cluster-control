@@ -1,4 +1,5 @@
 // null worker... it should not exit until explicitly disconnected
+
 var assert = require('assert');
 var cluster = require('cluster');
 

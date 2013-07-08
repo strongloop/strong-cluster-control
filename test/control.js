@@ -1,8 +1,9 @@
 var assert = require('assert');
-var Client = require('../lib/client');
-var ctl = require('../lib/ctl');
 var EventEmitter = require('events').EventEmitter;
 var net = require('net');
+
+var Client = require('../lib/client');
+var ctl = require('../lib/ctl');
 
 describe('control channel', function() {
   it('should start and stop', function(done) {

@@ -1,5 +1,6 @@
 var assert = require('assert');
 var cluster = require('cluster');
+
 var master = require('../lib/master');
 
 console.log('master', process.pid);
