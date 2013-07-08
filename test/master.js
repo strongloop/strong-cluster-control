@@ -165,4 +165,12 @@ describe('master', function() {
     });
   });
 
+  it('should set size with json', function(done) {
+    master.request({cmd:'set-size', size:1});
+    master.once('newWorker', function() {
+      assert(Object.keys(cluster.workers).length == 1);
+      done();
+    });
+  });
+
 });

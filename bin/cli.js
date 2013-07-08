@@ -37,6 +37,14 @@ function displayStatusResponse(rsp) {
   }
 }
 
+program
+  .command('set-size')
+  .description('set-size N, set cluster size to N workers')
+  .action(function(size) {
+    request.cmd = 'set-size';
+    request.size = parseInt(size);
+  });
+
 // XXX temporary, for testing
 program
   .command('disconnect')
