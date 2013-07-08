@@ -15,14 +15,14 @@ describe('master', function() {
     cluster.disconnect(done);
   });
 
-  it('should report status 0', function(done) {
+  it('should report status array for 0 workers', function(done) {
     master.request({cmd:'status'}, function(rsp) {
       assert.deepEqual(rsp, {workers:[]});
       done();
     });
   });
 
-  it('should report status 1', function(done) {
+  it('should report status array for 1 workers', function(done) {
     cluster.fork();
     cluster.once('fork', function() {
       master.request({cmd:'status'}, function(rsp) {
@@ -35,7 +35,7 @@ describe('master', function() {
     });
   });
 
-  it('should report status 2', function(done) {
+  it('should report status array for 2 workers', function(done) {
     cluster.fork();
     cluster.once('fork', function() {
       cluster.fork();
@@ -55,11 +55,16 @@ describe('master', function() {
     });
   });
 
-  it('should report status 0, again', function(done) {
-    master.request({cmd:'status'}, function(rsp) {
-      assert.deepEqual(rsp, {workers:[]});
-      done();
+  it('should report status array for 0 workers, after resize', function(done) {
+    cluster.once('online', function() {
+      cluster.disconnect(function() {
+        master.request({cmd:'status'}, function(rsp) {
+          assert.deepEqual(rsp, {workers:[]});
+          done();
+        });
+      });
     });
+    cluster.fork();
   });
 
   it('should start and stop', function(done) {
@@ -70,7 +75,7 @@ describe('master', function() {
     });
   });
 
-  it('should return unsupported requests', function(done) {
+  it('should return error for unsupported requests', function(done) {
     master.request({cmd:'no-such-command'}, function(rsp) {
       assert(/no-such-command/.test(rsp.error));
       done();
