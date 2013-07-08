@@ -98,7 +98,7 @@ describe('master', function() {
     function stop() {
       master.stop();
       master.once('stop', done);
-    };
+    }
 
     master.once('error', function(er) {
       console.log('master', er);
@@ -120,7 +120,7 @@ describe('master', function() {
     function stop() {
       master.stop();
       master.once('stop', done);
-    };
+    }
 
     master.once('error', function(er) {
       console.log('master', er);
