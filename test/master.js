@@ -15,7 +15,9 @@ cluster.setupMaster({
 describe('master', function() {
   afterEach(function(done) {
     debug('afterEach workers', Object.keys(cluster.workers).length);
-    cluster.disconnect(done);
+    master.stop(function() {
+      cluster.disconnect(done);
+    });
   });
 
   it('should expose default socket address', function() {
@@ -129,6 +131,37 @@ describe('master', function() {
     master.request({cmd:'no-such-command'}, function(rsp) {
       assert(/no-such-command/.test(rsp.error));
       done();
+    });
+  });
+
+  it('should resize up', function(done) {
+    var sawNewWorker = 0;
+    cluster.fork();
+    master.start({size:3});
+    master.once('newWorker', function newWorker(worker) {
+      // Make sure our argument is really a worker.
+      assert(worker);
+      assert(worker.id);
+      assert(worker.process.pid);
+
+      sawNewWorker += 1;
+
+      if(sawNewWorker == 2) {
+        assert(Object.keys(cluster.workers).length == 3);
+        return done();
+      }
+      master.once('newWorker', newWorker);
+    });
+  });
+
+  it('should set size up', function(done) {
+    master.start({size:1});
+    master.once('newWorker', function() {
+      master.setSize(2);
+      master.once('newWorker', function() {
+        assert(Object.keys(cluster.workers).length == 2);
+        done();
+      });
     });
   });
 
