@@ -173,4 +173,17 @@ describe('master', function() {
     });
   });
 
+  it('should use options.env with fork', function(done) {
+    master.start({
+      size: 1,
+      env:{SOME_VAR:'MY VALUE'}
+    });
+    master.once('newWorker', function(worker) {
+      worker.once('message', function(msg) {
+        assert.equal(msg.env.SOME_VAR, 'MY VALUE');
+        done();
+      });
+    });
+  });
+
 });
