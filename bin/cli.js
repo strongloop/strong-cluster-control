@@ -52,10 +52,16 @@ program
     display = console.log;
   });
 
-//   - set-workers N
-//   - get-workers
 //   - add-workers [1]
 //   - sub-workers [1]
+
+program
+  .command('*')
+  .action(function(name) {
+    process.stdout.write('unknown command: ' + name + '\n');
+    program.help();
+  });
+
 
 program.parse(process.argv);
 
