@@ -1,0 +1,37 @@
+{
+  "name": "strong-cluster-control",
+  "version": "0.0.1",
+  "description": "control clusters",
+  "license": "MIT",
+  "main": "index.js",
+  "bin" : {
+    "clusterctl": "bin/cli.js"
+  },
+  "scripts": {
+    "blanket": {
+      "pattern": "//^((?!(node_modules|test)).)*$/"
+    },
+    "coverage": "./node_modules/.bin/mocha -r blanket -R html-cov > coverage.html",
+    "test": "mocha --reporter spec",
+    "lint": "./node_modules/.bin/jshint *.js test lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/strongloop/strong-cluster-control.git"
+  },
+  "author": {
+    "name": "Sam Roberts",
+    "email": "sam@strongloop.com"
+  },
+  "dependencies": {
+    "commander": ""
+  },
+  "devDependencies": {
+    "mocha": "~1.9.0",
+    "jshint": "~2.0.1",
+    "blanket": "~1.1.4"
+  },
+  "engines": {
+    "node": "*"
+  }
+}
