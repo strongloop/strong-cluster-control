@@ -1,5 +1,5 @@
 var cluster = require('cluster');
-var control = require('../index.js');
+var control = require('../index');
 var program = require('commander');
 
 program
@@ -18,6 +18,5 @@ if(program.exec) {
 
 control.start({
   size: program.size,
-  //env: null, // XXX because it MUST be passed to .fork()
   path: program.path,
 });
