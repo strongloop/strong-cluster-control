@@ -8,13 +8,19 @@ var path = require('path');
 
 debug('master', process.pid);
 
+function workerCount() {
+  return Object.keys(cluster.workers).length;
+}
+
 cluster.setupMaster({
   exec: 'test/workers/null.js'
 });
 
 describe('master', function() {
   afterEach(function(done) {
-    debug('afterEach workers', Object.keys(cluster.workers).length);
+    debug('afterEach workers', workerCount());
+    master.removeAllListeners('newWorker');
+    master.removeAllListeners('stopWorker');
     master.stop(function() {
       cluster.disconnect(done);
     });
@@ -153,7 +159,7 @@ describe('master', function() {
       sawNewWorker += 1;
 
       if(sawNewWorker == 2) {
-        assert(Object.keys(cluster.workers).length == 3);
+        assert(workerCount() == 3);
         return done();
       }
       master.once('newWorker', newWorker);
@@ -165,7 +171,7 @@ describe('master', function() {
     master.once('newWorker', function() {
       master.setSize(2);
       master.once('newWorker', function() {
-        assert(Object.keys(cluster.workers).length == 2);
+        assert(workerCount() == 2);
         done();
       });
     });
@@ -174,7 +180,99 @@ describe('master', function() {
   it('should set size with json', function(done) {
     master.request({cmd:'set-size', size:1});
     master.once('newWorker', function() {
-      assert(Object.keys(cluster.workers).length == 1);
+      assert(workerCount() == 1);
+      done();
+    });
+  });
+
+  it('should start at 1, and resize to 0', function(done) {
+    master.start({size:1});
+    master.once('newWorker', function() {
+      master.setSize(0);
+    });
+
+    master.once('stopWorker', function(worker) {
+      assert(worker.process.pid, 'worker is valid');
+      assert.equal(workerCount(), 0);
+      done();
+    });
+  });
+
+  it('should start at 3, and resize to 1', function(done) {
+    master.start({size:3});
+    master.on('newWorker', function() {
+      if(workerCount() == 3) {
+        master.setSize(1);
+      }
+    });
+
+    master.once('stopWorker', function() {
+      assert.equal(workerCount(), 2);
+      master.once('stopWorker', function() {
+        assert.equal(workerCount(), 1);
+        done();
+      });
+    });
+  });
+
+  it('should resize while being resized', function(done) {
+    master.start({size:10});
+    master.on('newWorker', function() {
+      if(workerCount() == 3) {
+        master.setSize(5);
+      }
+      if(workerCount() == 5) {
+        master.setSize(2);
+      }
+    });
+
+    master.on('stopWorker', function(worker) {
+      if(workerCount() == 3) {
+        master.setSize(0);
+      }
+      if(workerCount() === 0) {
+        done();
+      }
+    });
+  });
+
+  it('should resize while workers are forked', function(done) {
+    master.start({size:10});
+    master.on('newWorker', function() {
+      if(workerCount() == 1) {
+        cluster.fork();
+      }
+      if(workerCount() == 3) {
+        master.setSize(5);
+        cluster.fork();
+      }
+      if(workerCount() == 5) {
+        master.setSize(2);
+      }
+    });
+
+    master.on('stopWorker', function(worker) {
+      if(workerCount() == 3) {
+        master.setSize(0);
+      }
+      if(workerCount() === 0) {
+        done();
+      }
+    });
+  });
+
+  it('should resize while too many workers are forked', function(done) {
+    master.start({size:5});
+    master.on('newWorker', function() {
+      if(workerCount() == 3) {
+        cluster.fork();
+        cluster.fork();
+        cluster.fork();
+        cluster.fork();
+      }
+    });
+    master.once('resize', function(size) {
+      assert.equal(size, 5);
       done();
     });
   });
