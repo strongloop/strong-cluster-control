@@ -75,7 +75,7 @@ program.parse(process.argv);
 
 var client = new Client(program.path, request, response)
   .on('error', function(er) {
-    console.error('Communication error (' + er.message + '), check master is listening on', program.to);
+    console.error('Communication error (' + er.message + '), check master is listening');
     process.exit(1);
   });
 
