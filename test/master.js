@@ -1,10 +1,10 @@
-var Client = require('../lib/client');
 var assert = require('assert');
 var cluster = require('cluster');
+var path = require('path');
 
+var client = require('../lib/client');
 var debug = require('../lib/debug');
 var master = require('../lib/master');
-var path = require('path');
 
 debug('master', process.pid);
 
@@ -101,7 +101,7 @@ describe('master', function() {
 
     function connect(addr) {
       assert.equal(addr, '_ctl');
-      Client('_ctl', {cmd:'status'}, stop)
+      client.request('_ctl', {cmd:'status'}, stop)
         .once('error', function(er) {
           console.log('client', er);
         });
@@ -123,7 +123,7 @@ describe('master', function() {
 
     function connect(addr) {
       assert.equal(addr.port, 4321);
-      Client(4321, {cmd:'status'}, stop)
+      client.request(4321, {cmd:'status'}, stop)
         .once('error', function(er) {
           console.log('client', er);
         });
