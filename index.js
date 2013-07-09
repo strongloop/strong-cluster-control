@@ -6,8 +6,24 @@ if (cluster.isMaster) {
   module.exports = require('./lib/master.js');
 } else {
   // Calling .start() in a worker is a nul op
-  exports.start = function () {};
+  exports.start = function (options, callback) {
+    // both options and callback are optional, adjust position based on type
+    // XXX cut-n-paste from lib/master, is it possible to factor out, maybe
+    // into a function that modifies arguments?
+    if(typeof callback === 'undefined') {
+      if(typeof options === 'function') {
+        callback = options;
+        options = undefined;
+      }
+    }
+
+    if(callback) {
+      process.nextTick(callback);
+    }
+  };
   exports.stop = function(callback) {
-    process.nextTick(callback);
+    if(callback) {
+      process.nextTick(callback);
+    }
   };
 }
