@@ -19,7 +19,7 @@ cluster.setupMaster({
 describe('master', function() {
   afterEach(function(done) {
     debug('afterEach workers', workerCount());
-    master.removeAllListeners('newWorker');
+    master.removeAllListeners('startWorker');
     master.removeAllListeners('stopWorker');
     master.stop(function() {
       cluster.disconnect(done);
@@ -150,7 +150,7 @@ describe('master', function() {
     var sawNewWorker = 0;
     cluster.fork();
     master.start({size:3});
-    master.once('newWorker', function newWorker(worker) {
+    master.once('startWorker', function startWorker(worker) {
       // Make sure our argument is really a worker.
       assert(worker);
       assert(worker.id);
@@ -162,15 +162,15 @@ describe('master', function() {
         assert(workerCount() == 3);
         return done();
       }
-      master.once('newWorker', newWorker);
+      master.once('startWorker', startWorker);
     });
   });
 
   it('should set size up', function(done) {
     master.start({size:1});
-    master.once('newWorker', function() {
+    master.once('startWorker', function() {
       master.setSize(2);
-      master.once('newWorker', function() {
+      master.once('startWorker', function() {
         assert(workerCount() == 2);
         done();
       });
@@ -179,7 +179,7 @@ describe('master', function() {
 
   it('should set size with json', function(done) {
     master.request({cmd:'set-size', size:1});
-    master.once('newWorker', function() {
+    master.once('startWorker', function() {
       assert(workerCount() == 1);
       done();
     });
@@ -187,7 +187,7 @@ describe('master', function() {
 
   it('should start at 1, and resize to 0', function(done) {
     master.start({size:1});
-    master.once('newWorker', function() {
+    master.once('startWorker', function() {
       master.setSize(0);
     });
 
@@ -200,7 +200,7 @@ describe('master', function() {
 
   it('should start at 3, and resize to 1', function(done) {
     master.start({size:3});
-    master.on('newWorker', function() {
+    master.on('startWorker', function() {
       if(workerCount() == 3) {
         master.setSize(1);
       }
@@ -217,7 +217,7 @@ describe('master', function() {
 
   it('should resize while being resized', function(done) {
     master.start({size:10});
-    master.on('newWorker', function() {
+    master.on('startWorker', function() {
       if(workerCount() == 3) {
         master.setSize(5);
       }
@@ -238,7 +238,7 @@ describe('master', function() {
 
   it('should resize while workers are forked', function(done) {
     master.start({size:10});
-    master.on('newWorker', function() {
+    master.on('startWorker', function() {
       if(workerCount() == 1) {
         cluster.fork();
       }
@@ -263,7 +263,7 @@ describe('master', function() {
 
   it('should resize while too many workers are forked', function(done) {
     master.start({size:5});
-    master.on('newWorker', function() {
+    master.on('startWorker', function() {
       if(workerCount() == 3) {
         cluster.fork();
         cluster.fork();
@@ -282,7 +282,7 @@ describe('master', function() {
       size: 1,
       env:{SOME_VAR:'MY VALUE'}
     });
-    master.once('newWorker', function(worker) {
+    master.once('startWorker', function(worker) {
       worker.once('message', function(msg) {
         assert.equal(msg.env.SOME_VAR, 'MY VALUE');
         done();
