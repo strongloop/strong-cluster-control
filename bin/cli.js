@@ -16,7 +16,7 @@ var display = displayStatusResponse;
 
 program
   .version(version)
-  .option('-t, --to <socket>', 'cluster ctl socket to connect to, default to $CWD/clusterctl')
+  .option('-p,--path <path>', 'cluster ctl socket to connect to, default to ' + Client.ADDR)
   ;
 
 program
@@ -37,6 +37,14 @@ function displayStatusResponse(rsp) {
   }
 }
 
+program
+  .command('set-size')
+  .description('set-size N, set cluster size to N workers')
+  .action(function(size) {
+    request.cmd = 'set-size';
+    request.size = parseInt(size);
+  });
+
 // XXX temporary, for testing
 program
   .command('disconnect')
@@ -52,18 +60,22 @@ program
     display = console.log;
   });
 
-//   - set-workers N
-//   - get-workers
 //   - add-workers [1]
 //   - sub-workers [1]
 
-program.to = ADDR;
+program
+  .command('*')
+  .action(function(name) {
+    process.stdout.write('unknown command: ' + name + '\n');
+    program.help();
+  });
+
 
 program.parse(process.argv);
 
-var client = new Client(program.to, request, response)
+var client = new Client(program.path, request, response)
   .on('error', function(er) {
-    console.error('Communication error (' + er.message + '), check master is listening on', program.to);
+    console.error('Communication error (' + er.message + '), check master is listening');
     process.exit(1);
   });
 
