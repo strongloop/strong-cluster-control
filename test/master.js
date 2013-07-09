@@ -1,12 +1,16 @@
-var Client = require('../lib/client');
 var assert = require('assert');
 var cluster = require('cluster');
-
-var debug = require('../lib/debug');
-var master = require('../lib/master');
 var path = require('path');
 
+var client = require('../lib/client');
+var debug = require('../lib/debug');
+var master = require('../lib/master');
+
 debug('master', process.pid);
+
+function workerCount() {
+  return Object.keys(cluster.workers).length;
+}
 
 cluster.setupMaster({
   exec: 'test/workers/null.js'
@@ -14,7 +18,9 @@ cluster.setupMaster({
 
 describe('master', function() {
   afterEach(function(done) {
-    debug('afterEach workers', Object.keys(cluster.workers).length);
+    debug('afterEach workers', workerCount());
+    master.removeAllListeners('startWorker');
+    master.removeAllListeners('stopWorker');
     master.stop(function() {
       cluster.disconnect(done);
     });
@@ -95,7 +101,7 @@ describe('master', function() {
 
     function connect(addr) {
       assert.equal(addr, '_ctl');
-      Client('_ctl', {cmd:'status'}, stop)
+      client.request('_ctl', {cmd:'status'}, stop)
         .once('error', function(er) {
           console.log('client', er);
         });
@@ -117,7 +123,7 @@ describe('master', function() {
 
     function connect(addr) {
       assert.equal(addr.port, 4321);
-      Client(4321, {cmd:'status'}, stop)
+      client.request(4321, {cmd:'status'}, stop)
         .once('error', function(er) {
           console.log('client', er);
         });
@@ -144,7 +150,7 @@ describe('master', function() {
     var sawNewWorker = 0;
     cluster.fork();
     master.start({size:3});
-    master.once('newWorker', function newWorker(worker) {
+    master.once('startWorker', function startWorker(worker) {
       // Make sure our argument is really a worker.
       assert(worker);
       assert(worker.id);
@@ -153,19 +159,19 @@ describe('master', function() {
       sawNewWorker += 1;
 
       if(sawNewWorker == 2) {
-        assert(Object.keys(cluster.workers).length == 3);
+        assert(workerCount() == 3);
         return done();
       }
-      master.once('newWorker', newWorker);
+      master.once('startWorker', startWorker);
     });
   });
 
   it('should set size up', function(done) {
     master.start({size:1});
-    master.once('newWorker', function() {
+    master.once('startWorker', function() {
       master.setSize(2);
-      master.once('newWorker', function() {
-        assert(Object.keys(cluster.workers).length == 2);
+      master.once('startWorker', function() {
+        assert(workerCount() == 2);
         done();
       });
     });
@@ -173,8 +179,100 @@ describe('master', function() {
 
   it('should set size with json', function(done) {
     master.request({cmd:'set-size', size:1});
-    master.once('newWorker', function() {
-      assert(Object.keys(cluster.workers).length == 1);
+    master.once('startWorker', function() {
+      assert(workerCount() == 1);
+      done();
+    });
+  });
+
+  it('should start at 1, and resize to 0', function(done) {
+    master.start({size:1});
+    master.once('startWorker', function() {
+      master.setSize(0);
+    });
+
+    master.once('stopWorker', function(worker) {
+      assert(worker.process.pid, 'worker is valid');
+      assert.equal(workerCount(), 0);
+      done();
+    });
+  });
+
+  it('should start at 3, and resize to 1', function(done) {
+    master.start({size:3});
+    master.on('startWorker', function() {
+      if(workerCount() == 3) {
+        master.setSize(1);
+      }
+    });
+
+    master.once('stopWorker', function() {
+      assert.equal(workerCount(), 2);
+      master.once('stopWorker', function() {
+        assert.equal(workerCount(), 1);
+        done();
+      });
+    });
+  });
+
+  it('should resize while being resized', function(done) {
+    master.start({size:10});
+    master.on('startWorker', function() {
+      if(workerCount() == 3) {
+        master.setSize(5);
+      }
+      if(workerCount() == 5) {
+        master.setSize(2);
+      }
+    });
+
+    master.on('stopWorker', function(worker) {
+      if(workerCount() == 3) {
+        master.setSize(0);
+      }
+      if(workerCount() === 0) {
+        done();
+      }
+    });
+  });
+
+  it('should resize while workers are forked', function(done) {
+    master.start({size:10});
+    master.on('startWorker', function() {
+      if(workerCount() == 1) {
+        cluster.fork();
+      }
+      if(workerCount() == 3) {
+        master.setSize(5);
+        cluster.fork();
+      }
+      if(workerCount() == 5) {
+        master.setSize(2);
+      }
+    });
+
+    master.on('stopWorker', function(worker) {
+      if(workerCount() == 3) {
+        master.setSize(0);
+      }
+      if(workerCount() === 0) {
+        done();
+      }
+    });
+  });
+
+  it('should resize while too many workers are forked', function(done) {
+    master.start({size:5});
+    master.on('startWorker', function() {
+      if(workerCount() == 3) {
+        cluster.fork();
+        cluster.fork();
+        cluster.fork();
+        cluster.fork();
+      }
+    });
+    master.once('resize', function(size) {
+      assert.equal(size, 5);
       done();
     });
   });
@@ -184,7 +282,7 @@ describe('master', function() {
       size: 1,
       env:{SOME_VAR:'MY VALUE'}
     });
-    master.once('newWorker', function(worker) {
+    master.once('startWorker', function(worker) {
       worker.once('message', function(msg) {
         assert.equal(msg.env.SOME_VAR, 'MY VALUE');
         done();

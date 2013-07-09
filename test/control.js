@@ -3,14 +3,15 @@ var EventEmitter = require('events').EventEmitter;
 var net = require('net');
 var path = require('path');
 
+var client = require('../lib/client');
+var ctl = require('../lib/ctl');
+
 describe('client', function() {
   it('should expose default socket address', function() {
-    assert.equal(Client.ADDR, ctl.ADDR);
+    assert.equal(client.ADDR, ctl.ADDR);
   });
 });
 
-var Client = require('../lib/client');
-var ctl = require('../lib/ctl');
 
 describe('control channel', function() {
   it('should start and stop', function(done) {
@@ -30,10 +31,10 @@ describe('control channel', function() {
     };
 
     var server = ctl.start(master);
-    var client;
+    var request;
 
     master.on('listening', function() {
-      client = Client(ctl.ADDR, {cmd:'helo'}, response);
+      request = client.request(ctl.ADDR, {cmd:'helo'}, response);
     });
 
     function response(rsp) {

@@ -5,7 +5,7 @@ var net = require('net');
 var program = require('commander');
 
 var ADDR = require('../lib/ctl').ADDR;
-var Client = require('../lib/client');
+var client = require('../lib/client');
 var cmd = require('../lib/cmd');
 var version = require('../package.json').version;
 
@@ -16,7 +16,7 @@ var display = displayStatusResponse;
 
 program
   .version(version)
-  .option('-p,--path <path>', 'cluster ctl socket to connect to, default to ' + Client.ADDR)
+  .option('-p,--path <path>', 'cluster ctl socket to connect to, default to ' + client.ADDR)
   ;
 
 program
@@ -73,7 +73,7 @@ program
 
 program.parse(process.argv);
 
-var client = new Client(program.path, request, response)
+client.request(program.path, request, response)
   .on('error', function(er) {
     console.error('Communication error (' + er.message + '), check master is listening');
     process.exit(1);
