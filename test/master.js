@@ -92,7 +92,7 @@ describe('master', function() {
   it('should start on path', function(done) {
     master.start({path:'_ctl'});
     master.once('start', connect);
-    
+
     function connect(addr) {
       assert.equal(addr, '_ctl');
       Client('_ctl', {cmd:'status'}, stop)
@@ -100,7 +100,7 @@ describe('master', function() {
           console.log('client', er);
         });
     }
-    
+
     function stop() {
       master.stop();
       master.once('stop', done);
@@ -114,7 +114,7 @@ describe('master', function() {
   it('should start on port', function(done) {
     master.start({port:4321});
     master.once('start', connect);
-    
+
     function connect(addr) {
       assert.equal(addr.port, 4321);
       Client(4321, {cmd:'status'}, stop)
@@ -122,7 +122,7 @@ describe('master', function() {
           console.log('client', er);
         });
     }
-    
+
     function stop() {
       master.stop();
       master.once('stop', done);
