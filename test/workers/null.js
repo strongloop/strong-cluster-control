@@ -13,6 +13,12 @@ process.send({
   argv:process.argv
 });
 
+process.on('message', function(msg) {
+  if(msg.cmd === 'EXIT') {
+    process.exit(msg.code);
+  }
+});
+
 process.on('disconnect', function() {
   debug('worker disconnect', process.pid);
 });

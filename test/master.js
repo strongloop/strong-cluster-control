@@ -12,6 +12,21 @@ function workerCount() {
   return Object.keys(cluster.workers).length;
 }
 
+function firstWorker() {
+  var id = Object.keys(cluster.workers)[0];
+  return cluster.workers[id];
+}
+
+function randomInteger(I) {
+  return Math.floor(Math.random() * I);
+}
+
+function pickWorker() {
+  var workerIds = Object.keys(cluster.workers);
+  var pickId = workerIds[randomInteger(workerIds.length)];
+  return cluster.workers[pickId];
+}
+
 cluster.setupMaster({
   exec: 'test/workers/null.js'
 });
@@ -288,6 +303,81 @@ describe('master', function() {
       assert.equal(size, 5);
       done();
     });
+  });
+
+  it('should resize after worker disconnect', function(done) {
+    master.start({size:5});
+    master.once('resize', function(size) {
+      assert.equal(size, 5);
+      disconnectOne();
+    });
+    function disconnectOne() {
+      pickWorker()
+        .once('exit', checkSize)
+        .disconnect();
+    }
+    function checkSize() {
+      master.once('resize', function(size) {
+        assert.equal(size, 5);
+        done();
+      });
+    }
+  });
+
+  it('should resize after worker kill', function(done) {
+    master.start({size:5});
+    master.once('resize', function(size) {
+      assert.equal(size, 5);
+      disconnectOne();
+    });
+    function disconnectOne() {
+      pickWorker()
+        .once('exit', checkSize)
+        .kill('SIGKILL'); // SIGTERM has special, undocumented, handling by node
+    }
+    function checkSize() {
+      master.once('resize', function(size) {
+        assert.equal(size, 5);
+        done();
+      });
+    }
+  });
+
+  it('should resize after worker exit', function(done) {
+    master.start({size:5});
+    master.once('resize', function(size) {
+      assert.equal(size, 5);
+      disconnectOne();
+    });
+    function disconnectOne() {
+      pickWorker()
+        .once('exit', checkSize)
+        .send({ cmd: 'EXIT' });
+    }
+    function checkSize() {
+      master.once('resize', function(size) {
+        assert.equal(size, 5);
+        done();
+      });
+    }
+  });
+
+  it('should resize after worker fork', function(done) {
+    master.start({size:5});
+    master.once('resize', function(size) {
+      assert.equal(size, 5);
+      forkOne();
+    });
+    function forkOne() {
+      cluster.fork();
+      cluster.once('online', checkSize);
+    }
+    function checkSize() {
+      master.once('resize', function(size) {
+        assert.equal(size, 5);
+        done();
+      });
+    }
   });
 
 });
