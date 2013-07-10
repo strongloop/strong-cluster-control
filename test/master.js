@@ -146,6 +146,19 @@ describe('master', function() {
     });
   });
 
+  it('should use options.env with fork', function(done) {
+    master.start({
+      size: 1,
+      env:{SOME_VAR:'MY VALUE'}
+    });
+    master.once('startWorker', function(worker) {
+      worker.once('message', function(msg) {
+        assert.equal(msg.env.SOME_VAR, 'MY VALUE');
+        done();
+      });
+    });
+  });
+
   it('should resize up', function(done) {
     var sawNewWorker = 0;
     cluster.fork();
@@ -274,19 +287,6 @@ describe('master', function() {
     master.once('resize', function(size) {
       assert.equal(size, 5);
       done();
-    });
-  });
-
-  it('should use options.env with fork', function(done) {
-    master.start({
-      size: 1,
-      env:{SOME_VAR:'MY VALUE'}
-    });
-    master.once('startWorker', function(worker) {
-      worker.once('message', function(msg) {
-        assert.equal(msg.env.SOME_VAR, 'MY VALUE');
-        done();
-      });
     });
   });
 
