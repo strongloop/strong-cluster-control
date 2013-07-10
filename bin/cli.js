@@ -43,6 +43,7 @@ program
   .action(function(size) {
     request.cmd = 'set-size';
     request.size = parseInt(size);
+    display = function(){};
   });
 
 // XXX temporary, for testing
