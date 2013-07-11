@@ -137,7 +137,7 @@ describe('master', function() {
     master.once('start', connect);
 
     function connect(addr) {
-      assert.equal(addr.port, 4321);
+      assert.equal(addr.port, 4321, toString(addr));
       client.request(4321, {cmd:'status'}, stop)
         .once('error', function(er) {
           console.log('client', er);
@@ -305,79 +305,128 @@ describe('master', function() {
     });
   });
 
-  it('should resize after worker disconnect', function(done) {
-    master.start({size:5});
-    master.once('resize', function(size) {
-      assert.equal(size, 5);
-      disconnectOne();
-    });
-    function disconnectOne() {
-      pickWorker()
-        .once('exit', checkSize)
-        .disconnect();
-    }
-    function checkSize() {
+  describe('should get resize event on return to configured size', function() {
+    function assertClusterResizesToConfiguredSizeAfter(somethingHappens, done) {
+      master.start({size:5});
       master.once('resize', function(size) {
         assert.equal(size, 5);
-        done();
+        somethingHappens(checkSizeInvariant);
       });
+
+      function checkSizeInvariant() {
+        master.once('resize', function(size) {
+          assert.equal(size, master.options.size);
+          done();
+        });
+      }
     }
+
+    it('after worker disconnect', function(done) {
+      assertClusterResizesToConfiguredSizeAfter(function(done) {
+        pickWorker()
+          .once('exit', done)
+          .disconnect();
+      }, done);
+    });
+
+    it('after worker kill', function(done) {
+      assertClusterResizesToConfiguredSizeAfter(function(done) {
+        pickWorker()
+          .once('exit', done)
+          .kill('SIGKILL');
+      }, done);
+    });
+
+    it('after worker exit', function(done) {
+      assertClusterResizesToConfiguredSizeAfter(function(done) {
+        pickWorker()
+          .once('exit', done)
+          .send({ cmd: 'EXIT' });
+      }, done);
+    });
+
+    it('after worker fork', function(done) {
+      assertClusterResizesToConfiguredSizeAfter(function(done) {
+        cluster.fork();
+        cluster.once('online', done);
+      }, done);
+    });
   });
 
-  it('should resize after worker kill', function(done) {
-    master.start({size:5});
-    master.once('resize', function(size) {
-      assert.equal(size, 5);
-      disconnectOne();
+  describe('should shutdown a worker with', function() {
+    it('no connections', function(done) {
+      var worker = cluster.fork();
+      cluster.once('online', shutdown);
+
+      function shutdown() {
+        master.setSize(0);
+        worker.once('exit', function(code,signal) {
+          assert.equal(signal, null);
+          assert.equal(code, 0);
+          done();
+        });
+      }
     });
-    function disconnectOne() {
-      pickWorker()
-        .once('exit', checkSize)
-        .kill('SIGKILL'); // SIGTERM has special, undocumented, handling by node
-    }
-    function checkSize() {
-      master.once('resize', function(size) {
-        assert.equal(size, 5);
-        done();
-      });
-    }
+
+    it('connections', function(done) {
+      master.start({shutdownTimeout: 100});
+
+      var worker = cluster.fork();
+      cluster.once('online', setBusy);
+
+      function setBusy() {
+        worker.send({cmd:'BUSY'});
+        worker.on('message', function(msg) {
+          if(msg.cmd === 'BUSY') {
+            shutdown();
+          }
+        });
+      }
+
+      function shutdown() {
+        master.setSize(0);
+        worker.once('exit', function(code,signal) {
+          // It will catch SIGTERM, and exit
+          assert.equal(signal, null);
+          assert(code !== null);
+          done();
+        });
+      }
+    });
   });
 
-  it('should resize after worker exit', function(done) {
-    master.start({size:5});
-    master.once('resize', function(size) {
-      assert.equal(size, 5);
-      disconnectOne();
-    });
-    function disconnectOne() {
-      pickWorker()
-        .once('exit', checkSize)
-        .send({ cmd: 'EXIT' });
+  function assertWorkerIsKilledAfter(action, done) {
+    master.start({shutdownTimeout: 100, terminateTimeout: 100});
+
+    var worker = cluster.fork();
+    cluster.once('online', setBusy);
+
+    function setBusy() {
+      worker.send({cmd:'LOOP'});
+      worker.on('message', function(msg) {
+        if(msg.cmd === 'LOOP') {
+          stopWorker();
+        }
+      });
     }
-    function checkSize() {
-      master.once('resize', function(size) {
-        assert.equal(size, 5);
+
+    function stopWorker() {
+      master[action](worker.id);
+      worker.once('exit', function(code,signal) {
+        debug('exit with',code,signal);
+        assert.equal(signal, 'SIGKILL');
+        assert.equal(code, null);
         done();
       });
     }
+  }
+
+  it('should terminate a worker that refuses to die', function(done) {
+    assertWorkerIsKilledAfter('terminate', done);
   });
 
-  it('should resize after worker fork', function(done) {
-    master.start({size:5});
-    master.once('resize', function(size) {
-      assert.equal(size, 5);
-      forkOne();
-    });
-    function forkOne() {
-      cluster.fork();
-      cluster.once('online', checkSize);
-    }
-    function checkSize() {
-      master.once('resize', function(size) {
-        assert.equal(size, 5);
-        done();
-      });
-    }
+  it('should shutdown a worker that refuses to die', function(done) {
+    assertWorkerIsKilledAfter('shutdown', done);
   });
 
 });
