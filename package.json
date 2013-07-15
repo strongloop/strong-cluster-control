@@ -1,7 +1,7 @@
 {
   "name": "strong-cluster-control",
   "version": "0.0.1",
-  "description": "control clusters",
+  "description": "run-time managment of a node cluster",
   "license": "MIT",
   "main": "index.js",
   "bin" : {
