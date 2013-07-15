@@ -16,12 +16,12 @@ var display = displayStatusResponse;
 
 program
   .version(version)
-  .option('-p,--path <path>', 'cluster ctl socket to connect to, default to ' + client.ADDR)
+  .option('-p,--path,--port <path>', 'cluster ctl socket to connect to, default to ' + client.ADDR)
   ;
 
 program
   .command('status')
-  .description('status of cluster, default command')
+  .description('report status of cluster workers, the default command')
   .action(function() {
     request.cmd = 'status';
     display = displayStatusResponse;
@@ -46,9 +46,9 @@ program
     display = function(){};
   });
 
-// XXX temporary, for testing
 program
   .command('disconnect')
+  .description('disconnect all workers')
   .action(function() {
     request.cmd = 'disconnect';
     display = console.log;
@@ -56,21 +56,17 @@ program
 
 program
   .command('fork')
+  .description('fork one worker')
   .action(function() {
     request.cmd = 'fork';
     display = console.log;
   });
 
-//   - add-workers [1]
-//   - sub-workers [1]
-
 program
-  .command('*')
-  .action(function(name) {
+  .on('*', function(name) {
     process.stdout.write('unknown command: ' + name + '\n');
     program.help();
   });
-
 
 program.parse(process.argv);
 
