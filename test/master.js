@@ -1,5 +1,6 @@
 var assert = require('assert');
 var cluster = require('cluster');
+var os = require('os');
 var path = require('path');
 
 var client = require('../lib/client');
@@ -44,6 +45,11 @@ describe('master', function() {
   it('should expose default socket address', function() {
     assert.equal(master.ADDR, 'clusterctl');
   });
+
+  it('should expose cpu count, for easy use as a default size', function() {
+    assert.equal(master.CPUS, os.cpus().length);
+  });
+
   it('should report status array for 0 workers', function(done) {
     master.request({cmd:'status'}, function(rsp) {
       assert.deepEqual(rsp, {workers:[]});
