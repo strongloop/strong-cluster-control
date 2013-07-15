@@ -57,7 +57,7 @@ function makeBusy(callback) {
       debug('worker: listen on port', port);
       createClient();
     })
-  .on('connection', acceptClient)
+    .on('connection', acceptClient)
     .on('close', function() {
       debug('worker: on server/close');
     });
