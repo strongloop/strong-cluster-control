@@ -1,7 +1,7 @@
-# strong-cluster-control - run-time management of a node cluster
+# run-time management of a node cluster
 
 [strong-cluster-control](https://github.com/strongloop/strong-cluster-control)
-is a module to control clusters at run-time.
+is a module for run-time management of a node cluster.
 
 It is an extension of the node cluster module, not a replacement, and works
 beside it to add the following features:
@@ -14,7 +14,7 @@ It can be added to an existing application using the node cluster module without
 modifying how that application is currently starting up or using cluster, and
 still make use of additional features.
 
-The controller module can be set up through the
+The controller module allows the cluster to be controlled through the
 
 - clusterctl command line, or
 - API calls on the module
@@ -66,7 +66,7 @@ and the
 [in-source example](https://github.com/strongloop/strong-cluster-control/blob/master/bin/example-master.js).
 
 
-## clusterctl: command line interface to cluster-control
+## clusterctl: command line interface
 
 The `clusterctl` command line utility can be used to control a cluster at
 run-time. It defaults to communicating over the `clusterctl` named socket
@@ -121,6 +121,10 @@ The options are:
   terminate before killing a worker, the default is 5 seconds, see
   `.terminate()`
 
+For convenience during setup, it is not necessary to wrap `.start()` in a protective
+conditional `if(cluster.isMaster) {contro.start()}`, when called in workers it quietly
+does nothing but call its callback.
+
 The 'start' event is emitted after the controller is started.
 
 ### control.stop([callback])
@@ -165,7 +169,7 @@ the 'stopWorker' event will be emitted.
 
 Disconnect worker `id` and take increasingly agressive action until it exits.
 
-* `id` {Number} Cluster worker ID, see `cluster.workers` in node API
+* `id` {Number} Cluster worker ID, see `cluster.workers` in [cluster docs](http://nodejs.org/docs/latest/api/cluster.html)
 
 The effect of disconnect on a worker is to close all the servers in the worker,
 wait for them to close, and then exit. This process may not occur in a timely
@@ -179,7 +183,7 @@ calls `.terminate()` on the worker.
 
 Terminate worker `id`, taking increasingly aggressive action until it exits.
 
-* `id` {Number} Cluster worker ID, see `cluster.workers` in node API
+* `id` {Number} Cluster worker ID, see `cluster.workers` in [cluster docs](http://nodejs.org/docs/latest/api/cluster.html)
 
 The effect of sending SIGTERM to a node process should be to cause it to exit.
 This may not occur in a timely fashion if, for example, the process is ignoring
