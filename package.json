@@ -4,7 +4,7 @@
   "description": "run-time managment of a node cluster",
   "license": "MIT",
   "main": "index.js",
-  "bin" : {
+  "bin": {
     "clusterctl": "bin/cli.js"
   },
   "scripts": {
@@ -24,8 +24,8 @@
     "email": "sam@strongloop.com"
   },
   "dependencies": {
-    "commander": "",
-    "debuglog": ""
+    "commander": "~1.3.0",
+    "debuglog": "~0.0.1"
   },
   "devDependencies": {
     "mocha": "~1.9.0",
