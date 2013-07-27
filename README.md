@@ -173,11 +173,13 @@ Disconnect worker `id` and take increasingly agressive action until it exits.
 
 The effect of disconnect on a worker is to close all the servers in the worker,
 wait for them to close, and then exit. This process may not occur in a timely
-fashion if, for example, the server connections do not close.
+fashion if, for example, the server connections do not close. In order to
+gracefully close any open connections, a worker may listen to the `SHUTDOWN`
+message, see `control.msg.SHUTDOWN`.
 
-Calls `worker.disconnect()` on the identified worker, and sets a timer for
-`control.options.shutdownTimeout`. If the worker has not exited by that time,
-calls `.terminate()` on the worker.
+Sends a `SHUTDOWN` message to the identified worker, calls
+`worker.disconnect()`, and sets a timer for `control.options.shutdownTimeout`.
+If the worker has not exited by that time, calls `.terminate()` on the worker.
 
 ### control.terminate(id)
 
@@ -199,6 +201,33 @@ The options set by calling `.start()`.
 
 Visible for diagnostic and logging purposes, do *not* modify the options
 directly.
+
+### control.msg.SHUTDOWN
+
+* {String} `'CLUSTER_CONTROL_shutdown'`
+
+The `SHUTDOWN` message is sent by `.shutdown()` before disconnecting the worker,
+and can be used to gracefully close any open connections before the
+`control.options.shutdownTimeout` expires.
+
+All connections will be closed at the TCP level when the worker exits or is
+terminated, but this message gives the opportunity to close at a more
+application-appropriate time, for example, after any outstanding requests have
+been completed.
+
+The message format is:
+
+    { cmd: control.msg.SHUTDOWN }
+
+It can be received in a worker by listening for a `'message'` event with a
+matching `cmd` property:
+
+    process.on('message', function(msg) {
+        if(msg.cmd === control.msg.SHUTDOWN) {
+            // Close any open connections as soon as they are idle...
+        }
+    });
+
 
 ### control.ADDR
 

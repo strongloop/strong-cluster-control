@@ -4,6 +4,7 @@ var assert = require('assert');
 var cluster = require('cluster');
 var net = require('net');
 
+var control = require('../../index');
 var debug = require('../../lib/debug');
 
 debug('worker start', process.pid, process.argv);
@@ -29,15 +30,42 @@ process.on('message', function(msg) {
       process.send({cmd:'LOOP'});
     });
   }
+  if(msg.cmd === 'GRACEFUL') {
+    shutdownGracefully();
+  }
+});
+
+process.on('internalMessage', function(msg) {
+  debug('worker internalMessage', msg);
 });
 
 process.on('disconnect', function() {
-  debug('worker disconnect', process.pid);
+  debug('worker disconnect');
 });
 
 process.on('exit', function() {
-  debug('worker exit', process.pid);
+  debug('worker exit');
 });
+
+// Make ourselves busy, but when we get notified of shutdown, close the server
+// connections, allowing disconnect to continue.
+function shutdownGracefully() {
+  var connections = [];
+  var server = makeBusy(function() {
+  });
+  process.on('message', function(msg) {
+    debug('worker, message', msg,
+          'shutdown?', control.msg.SHUTDOWN,
+          'connections=', connections.length);
+    if(msg.cmd === control.msg.SHUTDOWN) {
+      connections.forEach(function(conn) {
+        debug('worker says bye to peer', conn.remotePort);
+        conn.end('bye');
+      });
+    }
+  });
+  server.on('connection', connections.push.bind(connections));
+}
 
 function makeUnexitable(callback) {
   process.on('SIGTERM', function() { }); // Ignore SIGTERM
@@ -64,10 +92,11 @@ function makeBusy(callback) {
 
 
   function acceptClient(accept) {
-    debug('worker: accept', accept.address());
+    var remotePort = accept.remotePort;
+    debug('worker: accept', accept.address(), remotePort);
 
     accept.on('close', function() {
-      debug('worker: on accept/close');
+      debug('worker: on accept/close', remotePort);
     });
     accept.on('end', function() {
       debug('worker: on accept/end, .end() our side');
@@ -83,4 +112,5 @@ function makeBusy(callback) {
         callback();
       });
   }
+  return server;
 }
