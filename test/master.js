@@ -1,5 +1,6 @@
 var assert = require('assert');
 var cluster = require('cluster');
+var net = require('net');
 var os = require('os');
 var path = require('path');
 
@@ -433,6 +434,49 @@ describe('master', function() {
 
   it('should shutdown a worker that refuses to die', function(done) {
     assertWorkerIsKilledAfter('shutdown', done);
+  });
+
+  it('should notify workers they are being shutdown', function(done) {
+    var worker = cluster.fork();
+
+    worker.once('online', function() {
+      debug('online, send graceful');
+      worker.send({cmd: 'GRACEFUL'});
+    });
+
+    worker.once('listening', function (address) {
+      debug('master, listening on address', address);
+      net.connect(address.port, onceConnected);
+    });
+
+    // We know we are done when the child sends us 'bye', evidence it has
+    // received the notification to do a graceful close, and when the exit
+    // status is 0, evidence that the closing of the server connections has
+    // allowed the child to disconnect and exit normally.
+    var serverBye;
+    var serverExit;
+
+    function maybeDone() {
+      if(serverBye && serverExit)
+        done();
+    }
+
+    function onceConnected() {
+      debug('master, once connected', this.address());
+      this.on('data', function(data) {
+
+        assert.equal(data, 'bye');
+        serverBye = true;
+        maybeDone();
+      });
+      master.shutdown(worker.id);
+    }
+
+    worker.on('exit', function(code) {
+      assert.equal(code, 0);
+      serverExit = true;
+      maybeDone();
+    });
   });
 
 });
