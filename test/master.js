@@ -51,6 +51,10 @@ describe('master', function() {
     assert.equal(master.CPUS, os.cpus().length);
   });
 
+  it('should expose message cmd names in master', function() {
+    assert.equal(master.cmd.SHUTDOWN, 'CLUSTER_CONTROL_shutdown');
+  });
+
   it('should report status array for 0 workers', function(done) {
     master.request({cmd:'status'}, function(rsp) {
       assert.deepEqual(rsp, {workers:[]});

@@ -55,9 +55,9 @@ function shutdownGracefully() {
   });
   process.on('message', function(msg) {
     debug('worker, message', msg,
-          'shutdown?', control.msg.SHUTDOWN,
+          'shutdown?', control.cmd.SHUTDOWN,
           'connections=', connections.length);
-    if(msg.cmd === control.msg.SHUTDOWN) {
+    if(msg.cmd === control.cmd.SHUTDOWN) {
       connections.forEach(function(conn) {
         debug('worker says bye to peer', conn.remotePort);
         conn.end('bye');

@@ -175,7 +175,7 @@ The effect of disconnect on a worker is to close all the servers in the worker,
 wait for them to close, and then exit. This process may not occur in a timely
 fashion if, for example, the server connections do not close. In order to
 gracefully close any open connections, a worker may listen to the `SHUTDOWN`
-message, see `control.msg.SHUTDOWN`.
+message, see `control.cmd.SHUTDOWN`.
 
 Sends a `SHUTDOWN` message to the identified worker, calls
 `worker.disconnect()`, and sets a timer for `control.options.shutdownTimeout`.
@@ -202,7 +202,7 @@ The options set by calling `.start()`.
 Visible for diagnostic and logging purposes, do *not* modify the options
 directly.
 
-### control.msg.SHUTDOWN
+### control.cmd.SHUTDOWN
 
 * {String} `'CLUSTER_CONTROL_shutdown'`
 
@@ -217,13 +217,13 @@ been completed.
 
 The message format is:
 
-    { cmd: control.msg.SHUTDOWN }
+    { cmd: control.cmd.SHUTDOWN }
 
 It can be received in a worker by listening for a `'message'` event with a
 matching `cmd` property:
 
     process.on('message', function(msg) {
-        if(msg.cmd === control.msg.SHUTDOWN) {
+        if(msg.cmd === control.cmd.SHUTDOWN) {
             // Close any open connections as soon as they are idle...
         }
     });
