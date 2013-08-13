@@ -26,5 +26,5 @@ if (cluster.isMaster) {
       process.nextTick(callback);
     }
   };
-  exports.msg = require('./lib/msg');
+  exports.cmd = require('./lib/msg');
 }
