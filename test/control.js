@@ -5,6 +5,7 @@ var path = require('path');
 
 var client = require('../lib/client');
 var ctl = require('../lib/ctl');
+var util = require('./util');
 
 describe('client', function() {
   it('should expose default socket address', function() {
@@ -73,7 +74,7 @@ describe('control channel', function() {
     });
   });
 
-  it('should listen on specific path', function(done) {
+  util.onUnixIt('should listen on specific path', function(done) {
     var master = new EventEmitter();
     ctl.start(master, {addr:'_ctl'});
 
