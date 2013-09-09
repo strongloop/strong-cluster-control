@@ -1,4 +1,4 @@
-# run-time management of a node cluster
+# Run-Time Management of a Node Cluster
 
 [strong-cluster-control](https://github.com/strongloop/strong-cluster-control)
 is a module for run-time management of a node cluster.
@@ -66,7 +66,7 @@ and the
 [in-source example](https://github.com/strongloop/strong-cluster-control/blob/master/bin/example-master.js).
 
 
-## clusterctl: command line interface
+## clusterctl: Command Line Interface
 
 The `clusterctl` command line utility can be used to control a cluster at
 run-time. It defaults to communicating over the `clusterctl` named socket
@@ -231,7 +231,8 @@ the 'stopWorker' event will be emitted.
 
 Disconnect worker `id` and take increasingly agressive action until it exits.
 
-* `id` {Number} Cluster worker ID, see `cluster.workers` in [cluster docs](http://nodejs.org/docs/latest/api/cluster.html)
+* `id` {Number} Cluster worker ID, see `cluster.workers` in
+  [cluster docs](http://nodejs.org/docs/latest/api/cluster.html)
 
 The effect of disconnect on a worker is to close all the servers in the worker,
 wait for them to close, and then exit. This process may not occur in a timely
@@ -247,7 +248,8 @@ If the worker has not exited by that time, calls `.terminate()` on the worker.
 
 Terminate worker `id`, taking increasingly aggressive action until it exits.
 
-* `id` {Number} Cluster worker ID, see `cluster.workers` in [cluster docs](http://nodejs.org/docs/latest/api/cluster.html)
+* `id` {Number} Cluster worker ID, see `cluster.workers` in
+  [cluster docs](http://nodejs.org/docs/latest/api/cluster.html)
 
 The effect of sending SIGTERM to a node process should be to cause it to exit.
 This may not occur in a timely fashion if, for example, the process is ignoring
