@@ -1,5 +1,11 @@
 // cluster-control:
 
+if (global.__strong_cluster_control) {
+  console.error('strong-cluster-control was require()\'d twice.');
+  console.error('This can cause undefined behaviour.');
+  return module.exports = global.__strong_cluster_control;
+}
+
 var cluster = require('cluster');
 
 if (cluster.isMaster) {
@@ -29,3 +35,5 @@ if (cluster.isMaster) {
   exports.cmd = require('./lib/msg');
   exports.loadOptions = require('./lib/load-options');
 }
+
+global.__strong_cluster_control = module.exports;
