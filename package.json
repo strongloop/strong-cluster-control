@@ -31,7 +31,7 @@
   "devDependencies": {
     "mocha": "~1.9.0",
     "jshint": "~2.0.1",
-    "blanket": "latest"
+    "blanket": "~1.1.5"
   },
   "engines": {
     "node": "*"
