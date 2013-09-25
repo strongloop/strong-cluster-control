@@ -12,7 +12,7 @@
       "pattern": "//^((?!(node_modules|test)).)*$/"
     },
     "coverage": "./node_modules/.bin/mocha -r blanket -R html-cov > coverage_strong-cluster-control.html",
-    "test": "mocha --reporter spec",
+    "test": "mocha --reporter tap",
     "lint": "./node_modules/.bin/jshint *.js test lib"
   },
   "repository": {
