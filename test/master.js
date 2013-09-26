@@ -7,6 +7,7 @@ var path = require('path');
 var client = require('../lib/client');
 var debug = require('../lib/debug');
 var master = require('../lib/master');
+var util = require('./util');
 
 debug('master', process.pid);
 
@@ -44,7 +45,8 @@ describe('master', function() {
   });
 
   it('should expose default socket address', function() {
-    assert.equal(master.ADDR, 'clusterctl');
+    var addr = util.isWindows ? 8765 : 'clusterctl';
+    assert.equal(master.ADDR, addr);
   });
 
   it('should expose cpu count, for easy use as a default size', function() {
@@ -121,7 +123,7 @@ describe('master', function() {
     });
   });
 
-  it('should start on path', function(done) {
+  util.onUnixIt('should start on path', function(done) {
     master.start({path:'_ctl'});
     master.once('start', connect);
 
