@@ -18,20 +18,23 @@ process.send({
 
 process.on('message', function(msg) {
   if(msg.cmd === 'EXIT') {
-    process.exit(msg.code);
+    return process.exit(msg.code);
   }
   if(msg.cmd === 'BUSY') {
     makeBusy(function() {
-      process.send({cmd:'BUSY'});
+      return process.send({cmd:'BUSY'});
     });
   }
   if(msg.cmd === 'LOOP') {
     makeUnexitable(function() {
-      process.send({cmd:'LOOP'});
+      return process.send({cmd:'LOOP'});
     });
   }
   if(msg.cmd === 'GRACEFUL') {
-    shutdownGracefully();
+    return shutdownGracefully();
+  }
+  if(msg.cmd === 'ERROR') {
+    throw Error('On command, I error!');
   }
 });
 
