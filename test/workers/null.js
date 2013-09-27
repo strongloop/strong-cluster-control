@@ -7,16 +7,20 @@ var net = require('net');
 var control = require('../../index');
 var debug = require('../../lib/debug');
 
-debug('worker start', process.pid, process.argv);
+debug('worker start', process.pid, process.argv, 'cmd:', process.env.cmd);
 
 assert(!cluster.isMaster);
+
+onCommand(process.env);
 
 process.send({
   env:process.env,
   argv:process.argv
 });
 
-process.on('message', function(msg) {
+process.on('message', onCommand);
+
+function onCommand(msg) {
   if(msg.cmd === 'EXIT') {
     return process.exit(msg.code);
   }
@@ -36,7 +40,7 @@ process.on('message', function(msg) {
   if(msg.cmd === 'ERROR') {
     throw Error('On command, I error!');
   }
-});
+}
 
 process.on('internalMessage', function(msg) {
   debug('worker internalMessage', msg);
