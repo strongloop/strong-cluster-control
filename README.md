@@ -9,6 +9,7 @@ beside it to add the following features:
 - runs `size` workers (optionally), and monitors them for unexpected death
 - run-time control of cluster through command line and API
 - soft shutdown as well as hard termination of workers
+- throttles worker restart rate if they are exiting abnormally
 
 It can be added to an existing application using the node cluster module without
 modifying how that application is currently starting up or using cluster, and
@@ -120,6 +121,10 @@ The options are:
 * `terminateTimeout`: {Milliseconds} Number of milliseconds to wait after
   terminate before killing a worker, the default is 5 seconds, see
   `.terminate()`
+* `throttleDelay`: {Milliseconds} Number of milliseconds to delay restarting
+   workers after they are exiting abnormally.  Abnormal is defined as
+   as *not* suicide, see `worker.suicide` in
+   [cluster docs](http://nodejs.org/docs/latest/api/cluster.html)
 
 For convenience during setup, it is not necessary to wrap `.start()` in a protective
 conditional `if(cluster.isMaster) {control.start()}`, when called in workers it quietly

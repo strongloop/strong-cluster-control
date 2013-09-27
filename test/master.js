@@ -386,6 +386,7 @@ describe('master', function() {
     });
 
     it('after worker exit', function(done) {
+      this.timeout(5000); // exit is abnormal, and triggers throttling
       assertClusterResizesToConfiguredSizeAfter(function(done) {
         pickWorker()
           .once('exit', done)
@@ -527,4 +528,27 @@ describe('master', function() {
     });
   });
 
+  it('should throttle restart on unexpected exit', function(done) {
+    // Run for some time, with workers set to error on start. Without
+    // throttling, workers get forked faster than dozens per second, with
+    // throttling, it should be no more than a couple a second.
+    var TIME = 5000;
+    var FORKS = TIME/1000 * 2;
+    var forks = 0;
+    this.timeout(2 * TIME);
+
+    master.start({
+      size: 3,
+      env: {cmd: 'EXIT'}
+    });
+
+    cluster.on('fork', function forkCounter(worker) {
+      forks++;
+    });
+
+    setTimeout(function() {
+      assert(forks < FORKS, 'forked '+forks+' times!');
+      return done();
+    }, TIME);
+  });
 });
