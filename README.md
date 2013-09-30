@@ -198,6 +198,14 @@ The combination of the above three allows you to determine if you are a worker,
 or not, and if you are a master, if you should start the cluster control module,
 or just start the server if clustering was not requested.
 
+### control.status()
+
+Returns the current cluster status similar to what's sent to
+`clusterctl status`. Its properties include:
+
+ - `workers`: {Array} An Array of Objects containining the following properties:
+    - `id`: The id of the Worker within the Master.
+    - `pid`: The pid of the Worker process.
 
 ### control.setSize(N)
 
