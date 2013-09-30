@@ -64,6 +64,16 @@ function shutdownGracefully() {
       });
     }
   });
+
+  // echo data
+  server.on('connection', function(connection) {
+    debug('worker, on server/connection');
+    connection.on('data', function(data) {
+      this.write(data);
+    });
+  });
+
+  // remember connection, so we can close it on graceful shutdown
   server.on('connection', connections.push.bind(connections));
 }
 

@@ -466,13 +466,20 @@ describe('master', function() {
 
     function onceConnected() {
       debug('master, once connected', this.address());
-      this.on('data', function(data) {
-
-        assert.equal(data, 'bye');
-        serverBye = true;
-        maybeDone();
+      // We have a tcp connection, but worker may not have accepted it yet, we
+      // have to make sure not to send the shutdown notification until the
+      // worker has accepted the connection. We ensure this by pumping data
+      // through.
+      this.write('X');
+      this.once('data', function() {
+        // now we are sure the client knows about the connection, shutdown
+        this.once('data', function(data) {
+          assert.equal(data, 'bye');
+          serverBye = true;
+          maybeDone();
+        });
+        master.shutdown(worker.id);
       });
-      master.shutdown(worker.id);
     }
 
     worker.on('exit', function(code) {
