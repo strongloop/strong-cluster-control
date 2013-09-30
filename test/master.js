@@ -213,6 +213,15 @@ describe('master', function() {
     });
   });
 
+  it('should set size in options when changed', function() {
+    master.start({size:0});
+    assert.equal(master.options.size, 0);
+    assert.equal(master.size, 0);
+    master.setSize(1);
+    assert.equal(master.options.size, 1);
+    assert.equal(master.size, 1);
+  });
+
   it('should resize up', function(done) {
     var sawNewWorker = 0;
     cluster.fork();

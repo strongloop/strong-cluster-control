@@ -277,7 +277,10 @@ calls `worker.("SIGKILL")` on the worker.
 
 ### control.options
 
-The options set by calling `.start()`.
+A copy of the options set by calling `.start()`.
+
+It will have any default values set in it, and will be kept synchronized with
+changes made via explicit calls, such as to `.setSize()`.
 
 Visible for diagnostic and logging purposes, do *not* modify the options
 directly.
