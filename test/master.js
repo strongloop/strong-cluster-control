@@ -55,11 +55,10 @@ describe('master', function() {
     assert.equal(master.cmd.SHUTDOWN, 'CLUSTER_CONTROL_shutdown');
   });
 
-  it('should report status array for 0 workers', function(done) {
-    master.request({cmd:'status'}, function(rsp) {
-      assert.deepEqual(rsp, {workers:[]});
-      done();
-    });
+  it('should report status array for 0 workers', function() {
+    var rsp = master.status();
+
+    assert.deepEqual(rsp, {workers:[]});
   });
 
   it('should report status array for 1 workers', function(done) {
