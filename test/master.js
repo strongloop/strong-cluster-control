@@ -440,7 +440,13 @@ describe('master', function() {
   });
 
   it('should notify workers they are being shutdown', function(done) {
-    var worker = cluster.fork();
+    var _debug = debug;
+    //debug = console.log;
+    var to = master.options.terminateTimeout;
+    //master.options.terminateTimeout = 10000;
+    var env = {};
+    //env = {NODE_DEBUG:'cluster-control'};
+    var worker = cluster.fork(env);
 
     worker.once('online', function() {
       debug('online, send graceful');
@@ -483,6 +489,9 @@ describe('master', function() {
     }
 
     worker.on('exit', function(code) {
+      debug = _debug;
+      master.options.terminateTimeout = to;
+      process.env.NODE_DEBUG = '';
       assert.equal(code, 0);
       serverExit = true;
       maybeDone();
