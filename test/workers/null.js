@@ -7,7 +7,7 @@ var net = require('net');
 var control = require('../../index');
 var debug = require('../../lib/debug');
 
-debug('worker start', process.pid, process.argv, 'cmd:', process.env.cmd);
+debug('worker start', cluster.worker.id, 'pid', process.pid, process.argv, 'cmd:', process.env.cmd);
 
 assert(!cluster.isMaster);
 

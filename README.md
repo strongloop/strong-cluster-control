@@ -150,6 +150,16 @@ has non-cluster handles open. Open handles can be closed in the 'stop' event
 callback to allow node to shutdown gracefully, or `process.exit()` can be
 called, as appropriate for the application.
 
+### control.restart()
+
+Restart workers one by one, until all current workers have been restarted.
+
+This can be used to do a rolling upgrade, if the underlying code has changed.
+
+Old workers will be restarted only if the last worker to be restarted stays
+alive for more than `throttleDelay` milliseconds, ensuring that the current
+workers will not all be killed while the new workers are failing to start.
+
 ### control.loadOptions([defaults])
 
 Load options from configuration files, environment, or command line.

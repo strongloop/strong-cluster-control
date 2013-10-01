@@ -4,6 +4,8 @@ var net = require('net');
 var os = require('os');
 var path = require('path');
 
+var _ = require('lodash');
+
 var client = require('../lib/client');
 var debug = require('../lib/debug');
 var master = require('../lib/master');
@@ -41,6 +43,11 @@ describe('master', function() {
     master.stop(function() {
       cluster.disconnect(done);
     });
+  });
+
+  beforeEach(function() {
+    assert.equal(master.size, undefined);
+    assert.equal(workerCount(), 0);
   });
 
   describe('should expose', function() {
@@ -562,6 +569,72 @@ describe('master', function() {
       assert.equal(code, 0);
       serverExit = true;
       maybeDone();
+    });
+  });
+
+  describe('should restart', function() {
+    it('all current workers while new ones stay alive', function(done) {
+      var SIZE = 5;
+      var DELAY = 200;
+      this.timeout(5 * DELAY * SIZE); // try to tune timeout to SIZE, DELAY
+      master.start({size: SIZE, throttleDelay: DELAY});
+      master.once('resize', function() {
+        var oldWorkers = Object.keys(cluster.workers);
+        master.restart();
+        master.once('restart', function() {
+          var stillAlive = _.intersection(oldWorkers, Object.keys(cluster.workers));
+          assert.equal(stillAlive.length, 0, 'no old workers are still alive');
+          done();
+        });
+      });
+    });
+
+    it('all current workers after new workers stop dieing', function(done) {
+      var SIZE = 5;
+      this.timeout(SIZE * 4000 + 4000);
+
+      master.start({
+        size: SIZE,
+        throttleDelay: 200, // default is 2 sec, we'd like test to run faster
+      });
+
+      master.once('resize', function() {
+        debug('after resize, cmd workers to exit');
+        var oldWorkers = Object.keys(cluster.workers);
+        process.env.cmd = 'EXIT';
+        master.restart();
+        master.once('restart', function() {
+          assert(!process.env.cmd, 'restart should not finish until workers stop dieing');
+          var stillAlive = _.intersection(oldWorkers, Object.keys(cluster.workers));
+          debug('on restart, orig:', oldWorkers);
+          debug('on restart, aliv:', stillAlive);
+          assert.equal(stillAlive.length, 0, 'no old workers are still alive');
+          done();
+        });
+
+        // Run until twice the current number of workers have been forked,
+        // and check that some of the originals are still around.
+        var forks = 0;
+        cluster.once('fork', checkDone);
+        function checkDone() {
+          forks++;
+          if(forks > 2 * SIZE ) {
+            var stillAlive = _.intersection(oldWorkers, Object.keys(cluster.workers));
+            debug('after a while, orig:', oldWorkers);
+            debug('after a while, aliv:', stillAlive);
+            // Note, exactly how many remain alive depends on relationship
+            // between how long it takes a child to spawn and exit, and what the
+            // throttleDelay is. If the numbers are too close, workers will be
+            // thought to be alive even if they aren't. So, the SIZE-2 is
+            // arbitrary, a bit, but seems to be true for reasonable throttle
+            // delays.
+            assert(stillAlive.length >= SIZE-2, 'most old workers are still alive');
+            delete process.env.cmd;
+          } else {
+            cluster.once('fork', checkDone);
+          }
+        }
+      });
     });
   });
 });
