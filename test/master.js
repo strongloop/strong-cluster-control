@@ -75,10 +75,14 @@ describe('master', function() {
   });
 
   it('should report status array for 2 workers', function(done) {
+    assert.equal(master.size, undefined);
+    assert.equal(workerCount(), 0);
     cluster.fork();
     cluster.once('fork', function() {
+      assert.equal(workerCount(), 1);
       cluster.fork();
       cluster.once('fork', function() {
+        assert.equal(workerCount(), 2);
         master.request({cmd:'status'}, function(rsp) {
           assert.equal(rsp.workers.length, 2);
           var w0 = rsp.workers[0];
@@ -117,6 +121,31 @@ describe('master', function() {
   it('should start and stop, notifying with callbacks', function(done) {
     master.start(function() {
       master.stop(done);
+    });
+  });
+
+  it('should stop workers it started', function(done) {
+    process.throwDeprecation = true;
+    master.start({size: 1}, function() {
+      master.once('resize', function() {
+        master.stop(function() {
+          assert.equal(workerCount(), 0);
+          return done();
+        });
+      });
+    });
+  });
+
+  it('should not stop workers it did not start', function(done) {
+    master.start(function() {
+      cluster.fork();
+      cluster.once('online', function() {
+        assert.equal(workerCount(), 1);
+        master.stop(function() {
+          assert.equal(workerCount(), 1);
+          return done();
+        });
+      });
     });
   });
 
@@ -182,6 +211,15 @@ describe('master', function() {
         done();
       });
     });
+  });
+
+  it('should set size in options when changed', function() {
+    master.start({size:0});
+    assert.equal(master.options.size, 0);
+    assert.equal(master.size, 0);
+    master.setSize(1);
+    assert.equal(master.options.size, 1);
+    assert.equal(master.size, 1);
   });
 
   it('should resize up', function(done) {

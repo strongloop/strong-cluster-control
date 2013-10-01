@@ -129,13 +129,21 @@ The 'start' event is emitted after the controller is started.
 
 ### control.stop([callback])
 
-Stop the controller. Remove event listeners that were set on the `cluster`
-module, and stop listening on the control port.
+Stop the controller, after stopping workers (if the size is being controlled,
+see `setSize()`).
+
+Remove event listeners that were set on the `cluster` module, and stop listening
+on the control port.
 
 * `callback`: {Function} A callback function, it is set as a listener for
   the `'stop'` event.
 
 The 'stop' event is emitted after the controller is stopped.
+
+When there are no workers or listeners, node will exit, unless the application
+has non-cluster handles open. Open handles can be closed in the 'stop' event
+callback to allow node to shutdown gracefully, or `process.exit()` can be
+called, as appropriate for the application.
 
 ### control.loadOptions([defaults])
 
@@ -269,7 +277,10 @@ calls `worker.("SIGKILL")` on the worker.
 
 ### control.options
 
-The options set by calling `.start()`.
+A copy of the options set by calling `.start()`.
+
+It will have any default values set in it, and will be kept synchronized with
+changes made via explicit calls, such as to `.setSize()`.
 
 Visible for diagnostic and logging purposes, do *not* modify the options
 directly.
@@ -315,12 +326,16 @@ would be an optimal number of workers.
 
 ### Event: 'start'
 
-Emitted after control has started. Currently, control is considered started
+Emitted after control has started. Control is considered started
 after the 'listening' event has been emitted.
 
 Starting of workers happens in the background, if you are specifically
-interested in knowning when all the workers have started, see the 'resize'
+interested in knowing when all the workers have started, see the 'resize'
 event.
+
+### Event: 'stop'
+
+Emitted after control has stopped, see `.stop()`.
 
 ### Event: 'error'
 
