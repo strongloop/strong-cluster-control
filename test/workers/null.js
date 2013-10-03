@@ -7,33 +7,40 @@ var net = require('net');
 var control = require('../../index');
 var debug = require('../../lib/debug');
 
-debug('worker start', process.pid, process.argv);
+debug('worker start', cluster.worker.id, 'pid', process.pid, process.argv, 'cmd:', process.env.cmd);
 
 assert(!cluster.isMaster);
+
+onCommand(process.env);
 
 process.send({
   env:process.env,
   argv:process.argv
 });
 
-process.on('message', function(msg) {
+process.on('message', onCommand);
+
+function onCommand(msg) {
   if(msg.cmd === 'EXIT') {
-    process.exit(msg.code);
+    return process.exit(msg.code);
   }
   if(msg.cmd === 'BUSY') {
     makeBusy(function() {
-      process.send({cmd:'BUSY'});
+      return process.send({cmd:'BUSY'});
     });
   }
   if(msg.cmd === 'LOOP') {
     makeUnexitable(function() {
-      process.send({cmd:'LOOP'});
+      return process.send({cmd:'LOOP'});
     });
   }
   if(msg.cmd === 'GRACEFUL') {
-    shutdownGracefully();
+    return shutdownGracefully();
   }
-});
+  if(msg.cmd === 'ERROR') {
+    throw Error('On command, I error!');
+  }
+}
 
 process.on('internalMessage', function(msg) {
   debug('worker internalMessage', msg);
