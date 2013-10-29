@@ -23,11 +23,11 @@ The controller module allows the cluster to be controlled through the
 
 ## Install
 
-    slnode install strong-cluster-control
+    npm install --save strong-cluster-control
 
 The command line:
 
-    slnode install -g strong-cluster-control
+    npm install -g strong-cluster-control
     clusterctl --help
 
 
