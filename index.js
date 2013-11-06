@@ -20,6 +20,7 @@ if (cluster.isMaster) {
   module.exports.VERSION = VERSION;
   cluster._strongControlMaster = module.exports;
 } else {
+  exports = module.exports = new (require('events').EventEmitter);
   // Calling .start() in a worker is a nul op
   exports.start = function (options, callback) {
     // both options and callback are optional, adjust position based on type
@@ -35,11 +36,13 @@ if (cluster.isMaster) {
     if(callback) {
       process.nextTick(callback);
     }
+    return this;
   };
   exports.stop = function(callback) {
     if(callback) {
       process.nextTick(callback);
     }
+    return this;
   };
   exports.cmd = require('./lib/msg');
   exports.loadOptions = require('./lib/load-options');
