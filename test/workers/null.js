@@ -9,6 +9,8 @@ var debug = require('../../lib/debug');
 
 debug('worker start', cluster.worker.id, 'pid', process.pid, process.argv, 'cmd:', process.env.cmd);
 
+testApiStub();
+
 assert(!cluster.isMaster);
 
 onCommand(process.env);
@@ -39,6 +41,9 @@ function onCommand(msg) {
   }
   if(msg.cmd === 'ERROR') {
     throw Error('On command, I error!');
+  }
+  if(msg.cmd === 'TEST-API-STUB') {
+    testApiStub();
   }
 }
 
@@ -130,4 +135,15 @@ function makeBusy(callback) {
       });
   }
   return server;
+}
+
+function testApiStub() {
+  control.start({
+    size: control.CPUS
+  }).on('error', function(er) {
+  }).stop(function () {
+  }).once('error', function() {
+  });
+
+  process.exit();
 }
