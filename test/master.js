@@ -63,6 +63,15 @@ describe('master', function() {
       assert.equal(master.cmd.SHUTDOWN, 'CLUSTER_CONTROL_shutdown');
     });
 
+    it('stub of start/stop in worker', function(done) {
+      cluster.fork({
+        cmd: 'TEST-API-STUB'
+      }).on('exit', function(code) {
+        assert.equal(code, 0);
+        return done();
+      });
+    });
+
   });
 
   describe('should report status array', function() {
