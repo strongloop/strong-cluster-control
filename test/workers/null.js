@@ -7,13 +7,14 @@ var net = require('net');
 var control = require('../../index');
 var debug = require('../../lib/debug');
 
-debug('worker start', cluster.worker.id, 'pid', process.pid, process.argv, 'cmd:', process.env.cmd);
-
-testApiStub();
+debug('worker start id', cluster.worker.id, 'cmd:', process.env.cmd);
 
 assert(!cluster.isMaster);
 
 onCommand(process.env);
+
+debug('worker env', process.env);
+debug('worker argv', process.argv);
 
 process.send({
   env:process.env,
