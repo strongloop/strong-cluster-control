@@ -9,8 +9,6 @@ var debug = require('../../lib/debug');
 
 debug('worker start id', cluster.worker.id, 'cmd:', process.env.cmd);
 
-testApiStub();
-
 assert(!cluster.isMaster);
 
 onCommand(process.env);
