@@ -1,10 +1,10 @@
 # Run-Time Management of a Node Cluster
 
-[strong-cluster-control](https://github.com/strongloop/strong-cluster-control)
-is a module for run-time management of a node cluster.
+Module for run-time management of a node cluster.
+It is an extension of the node cluster module, not a replacement.
 
-It is an extension of the node cluster module, not a replacement, and works
-beside it to add the following features:
+For full documentation, see 
+[StrongLoop Suite Documentation - Clustering applications](http://docs.strongloop.com/display/DOC/Clustering+applications).
 
 - runs `size` workers (optionally), and monitors them for unexpected death
 - run-time control of cluster through command line and API
