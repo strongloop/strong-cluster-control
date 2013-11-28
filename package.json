@@ -1,6 +1,6 @@
 {
   "name": "strong-cluster-control",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "run-time managment of a node cluster",
   "license": "MIT",
   "main": "index.js",
@@ -8,11 +8,7 @@
     "clusterctl": "bin/cli.js"
   },
   "scripts": {
-    "blanket": {
-      "pattern": "//^((?!(node_modules|test)).)*$/"
-    },
-    "coverage": "./node_modules/.bin/mocha -r blanket -R html-cov > coverage_strong-cluster-control.html",
-    "test": "mocha --reporter tap",
+    "test": "mocha --reporter spec",
     "lint": "./node_modules/.bin/jshint *.js test lib"
   },
   "repository": {
@@ -31,8 +27,7 @@
   },
   "devDependencies": {
     "mocha": "~1.9.0",
-    "jshint": "~2.0.1",
-    "blanket": "~1.1.5"
+    "jshint": "~2.0.1"
   },
   "engines": {
     "node": "*"
