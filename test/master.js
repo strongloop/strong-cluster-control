@@ -41,6 +41,7 @@ describe('master', function() {
     master.removeAllListeners('startWorker');
     master.removeAllListeners('stopWorker');
     master.stop(function() {
+      debug('afterEach master stopped, disconnect cluster');
       cluster.disconnect(done);
     });
   });
