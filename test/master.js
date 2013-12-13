@@ -430,11 +430,23 @@ describe('master', function() {
       }, done);
     });
 
-    it('after worker kill', function(done) {
+    it('after worker destroy', function(done) {
       assertClusterResizesToConfiguredSizeAfter(function(done) {
         pickWorker()
           .once('exit', done)
-          .kill('SIGKILL');
+          .destroy('SIGKILL'); // .destroy is other, better, name for .kill
+      }, done);
+    });
+
+    it('after worker signal', function(done) {
+      this.timeout(5000); // exit is abnormal, and triggers throttling
+      assertClusterResizesToConfiguredSizeAfter(function(done) {
+        pickWorker()
+          .once('exit', done)
+          .process.kill('SIGKILL');
+          // use process.kill(), because it just sends a signal, whereas
+          // worker .kill() first disconnects, and then signals, so signal
+          // is usually never received
       }, done);
     });
 
