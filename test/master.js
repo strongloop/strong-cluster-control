@@ -41,6 +41,7 @@ describe('master', function() {
     master.removeAllListeners('startWorker');
     master.removeAllListeners('stopWorker');
     master.stop(function() {
+      debug('afterEach master stopped, disconnect cluster');
       cluster.disconnect(done);
     });
   });
@@ -406,9 +407,10 @@ describe('master', function() {
 
   describe('should get resize event on return to configured size', function() {
     function assertClusterResizesToConfiguredSizeAfter(somethingHappens, done) {
-      master.start({size:5});
+      var SIZE = 5;
+      master.start({size:SIZE});
       master.once('resize', function(size) {
-        assert.equal(size, 5);
+        assert.equal(size, SIZE);
         somethingHappens(checkSizeInvariant);
       });
 
@@ -428,11 +430,23 @@ describe('master', function() {
       }, done);
     });
 
-    it('after worker kill', function(done) {
+    it('after worker destroy', function(done) {
       assertClusterResizesToConfiguredSizeAfter(function(done) {
         pickWorker()
           .once('exit', done)
-          .kill('SIGKILL');
+          .destroy('SIGKILL'); // .destroy is other, better, name for .kill
+      }, done);
+    });
+
+    it('after worker signal', function(done) {
+      this.timeout(5000); // exit is abnormal, and triggers throttling
+      assertClusterResizesToConfiguredSizeAfter(function(done) {
+        pickWorker()
+          .once('exit', done)
+          .process.kill('SIGKILL');
+          // use process.kill(), because it just sends a signal, whereas
+          // worker .kill() first disconnects, and then signals, so signal
+          // is usually never received
       }, done);
     });
 
