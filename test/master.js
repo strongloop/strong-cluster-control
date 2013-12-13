@@ -407,9 +407,10 @@ describe('master', function() {
 
   describe('should get resize event on return to configured size', function() {
     function assertClusterResizesToConfiguredSizeAfter(somethingHappens, done) {
-      master.start({size:5});
+      var SIZE = 5;
+      master.start({size:SIZE});
       master.once('resize', function(size) {
-        assert.equal(size, 5);
+        assert.equal(size, SIZE);
         somethingHappens(checkSizeInvariant);
       });
 
