@@ -9,6 +9,7 @@ var _ = require('lodash');
 var client = require('../lib/client');
 var debug = require('../lib/debug');
 var master = require('../lib/master');
+var toPipe = require('../lib/pipe').toPipe;
 
 debug('master', process.pid);
 
@@ -179,7 +180,7 @@ describe('master', function() {
       master.once('start', connect);
 
       function connect(addr) {
-        assert.equal(addr, '_ctl');
+        assert.equal(addr, toPipe('_ctl'));
         client.request('_ctl', {cmd:'status'}, stop)
         .once('error', function(er) {
           console.log('client', er);

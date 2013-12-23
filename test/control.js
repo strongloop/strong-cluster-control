@@ -5,6 +5,8 @@ var path = require('path');
 
 var client = require('../lib/client');
 var ctl = require('../lib/ctl');
+var debug = require('../lib/debug');
+var toPipe = require('../lib/pipe').toPipe;
 
 describe('client', function() {
   it('should expose default socket address', function() {
@@ -49,9 +51,9 @@ describe('control channel', function() {
     var client;
 
     master.on('listening', function() {
-      client = net.connect(ctl.ADDR)
+      client = net.connect(toPipe(ctl.ADDR))
         .on('connect', function() {
-          this.end('{'); // incomplete json
+          this.end('{\n'); // incomplete json
         });
     });
 
@@ -63,29 +65,61 @@ describe('control channel', function() {
     });
   });
 
-  it('should handle listen errors', function(done) {
-    var master = new EventEmitter();
-    var server = ctl.start(master, {addr:'/a/bad/path'});
+  // There does not seem to be a portable way of causing listen to fail. Any
+  // string can be used as a path on win32, and multiple listens are OK on
+  // unix.
+  if(process.platform === 'win32') {
+    it('should handle listen errors', function(done) {
+      var listening = net.createServer().listen(toPipe(ctl.ADDR))
+        .on('listening', failToListen);
+      function failToListen() {
+        var master = new EventEmitter();
+        var server = ctl.start(master);
 
-    master.once('error', function(er) {
-      assert(er);
-      ctl.stop(done);
+        master.once('error', function(er) {
+          assert(er);
+          ctl.stop(function() {
+            listening.close(done)
+          });
+        });
+        master.once('listening', function(server) {
+          assert(false, server.address());
+        });
+      }
     });
-  });
+  } else {
+    it('should handle listen errors', function(done) {
+      var master = new EventEmitter();
+      var server = ctl.start(master, {addr:'/a/bad/path'});
+
+      master.once('error', function(er) {
+        assert(er);
+        ctl.stop(function() {
+          return done();
+        });
+      });
+      master.once('listening', function(server) {
+        assert(false, server.address());
+      });
+    });
+  }
 
   it('should listen on specific path', function(done) {
+    this.timeout(4000);
     var master = new EventEmitter();
+
     ctl.start(master, {addr:'_ctl'});
 
     master.on('listening', function(server) {
-      assert.equal(server.address(), '_ctl');
-      net.connect('_ctl')
+      assert.ok(/\b_ctl$/.test(server.address()), server.address());
+      net.connect(toPipe('_ctl'))
         .on('connect', function() {
           this.destroy();
-          server.close(done);
+          ctl.stop(function() {
+            return done();
+          });
         });
     });
   });
 
 });
-  
