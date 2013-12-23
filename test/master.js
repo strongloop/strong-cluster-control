@@ -501,9 +501,10 @@ describe('master', function() {
       function shutdown() {
         master.setSize(0);
         worker.once('exit', function(code,signal) {
-          // It will catch SIGTERM, and exit
-          assert.equal(signal, null);
-          assert(code !== null);
+          // On unix, node catches SIGTERM and exits with non-zero status. On
+          // Windows, it dies with SIGTERM. Either way, its not a normal exit
+          // (code === 0).
+          assert((code !== 0));
           done();
         });
       }
@@ -530,7 +531,14 @@ describe('master', function() {
         master[action](worker.id);
         worker.once('exit', function(code,signal) {
           debug('exit with',code,signal);
-          assert.equal(signal, 'SIGKILL');
+          if(process.platform === 'win32') {
+            // SIGTERM is emulated by libuv on Windows by calling
+            // TerminateProcess(), which cannot be blocked or caught
+            assert.equal(signal, 'SIGTERM');
+          } else {
+            // SIGTERM can be ignored on Unix, but SIGKILL cannot
+            assert.equal(signal, 'SIGKILL');
+          }
           assert.equal(code, null);
           done();
         });
