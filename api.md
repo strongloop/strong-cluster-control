@@ -117,11 +117,11 @@ This is actually a subset of the possible locations, the
 Supported values are those described in `start()`, with a few extensions for
 `size`, which may be one of:
 
-1. a positive integer, or a string that converts to a positive integer, as for `start()`
+1. `0` - `N`, a positive integer, cluster size to maintain, as for `start()`
 2. `"default"`, or a string containing `"cpu"`, this will be converted to the
    number of cpus, see `control.CPUS`
-3. `0`, `"off"`, or anything else that isn't one of the previous values will be
-   converted to `0`, and indicate a preference for *not* clustering
+3. `"off"`, or anything else that isn't one of the previous values will indicate
+   a preference for *not* clustering
 
 The returned options object will contain the following fields that are not
 options to `start()`:
