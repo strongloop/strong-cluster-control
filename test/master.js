@@ -624,9 +624,14 @@ describe('master', function() {
       master.once('resize', function() {
         var oldWorkers = Object.keys(cluster.workers);
         master.restart();
+        assert.deepEqual(master.getRestarting(), oldWorkers);
+        master.once('startRestart', function(workers) {
+          assert.deepEqual(workers, oldWorkers);
+        });
         master.once('restart', function() {
           var stillAlive = _.intersection(oldWorkers, Object.keys(cluster.workers));
           assert.equal(stillAlive.length, 0, 'no old workers are still alive');
+          assert.deepEqual(master.getRestarting(), null);
           done();
         });
       });

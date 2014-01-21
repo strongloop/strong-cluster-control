@@ -299,6 +299,17 @@ changed or workers fork or exit, see `setSize()`.
 Event emitted after a worker which was started during a resize comes online, see the
 node API documentation for description of `worker` and "online".
 
+### 'startRestart'
+
+* `workers` {Array of worker IDs} Workers that are going to be restarted.
+
+Event emitted after `restart()` is called with array of worker IDs that will be
+restarted.
+
+### 'restart'
+
+Event emitted after after all the workers have been restarted.
+
 ### 'stopWorker'
 
 * `worker` {Worker object}
