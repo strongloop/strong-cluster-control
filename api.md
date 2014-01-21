@@ -276,6 +276,13 @@ Event emitted when an error occurs. The only current source of errors is the con
 protocol, which may require logging of the errors, but should not effect the
 operation of the controller.
 
+### 'setSize'
+
+* {Integer} size, the number of workers requested (will always
+  be the same as `cluster.options.size`)
+
+Event emitted after `setSize()` is called.
+
 ### 'resize'
 
 * {Integer} size, the number of workers now that resize is complete (will always

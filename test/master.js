@@ -240,20 +240,31 @@ describe('master', function() {
     });
   });
 
-  it('should set size in options when changed', function() {
-    master.start({size:0});
-    assert.equal(master.options.size, 0);
-    assert.equal(master.size, 0);
-    master.setSize(1);
-    assert.equal(master.options.size, 1);
-    assert.equal(master.size, 1);
-  });
+  describe('set size', function() {
+    it('should set in options when changed', function() {
+      master.start({size:0});
+      assert.equal(master.options.size, 0);
+      assert.equal(master.size, 0);
+      master.setSize(1);
+      assert.equal(master.options.size, 1);
+      assert.equal(master.size, 1);
+    });
 
-  it('should set size with json', function(done) {
-    master.request({cmd:'set-size', size:1});
-    master.once('startWorker', function() {
-      assert(workerCount() == 1);
-      done();
+    it('should set with json', function(done) {
+      master.request({cmd:'set-size', size:1});
+      master.once('startWorker', function() {
+        assert(workerCount() == 1);
+        done();
+      });
+    });
+
+    it('should emit when set', function(done) {
+      master.start({size:0});
+      master.setSize(0);
+      master.once('setSize', function(size) {
+        assert.equal(size, 0);
+        done();
+      });
     });
   });
 
