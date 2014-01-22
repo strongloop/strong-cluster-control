@@ -140,6 +140,8 @@ or just start the server if clustering was not requested.
 Returns the current cluster status similar to what's sent to
 `clusterctl status`. Its properties include:
 
+ - `master`: {Object}
+   - `pid`: The pid of the Master process.
  - `workers`: {Array} An Array of Objects containining the following properties:
     - `id`: The id of the Worker within the Master.
     - `pid`: The pid of the Worker process.

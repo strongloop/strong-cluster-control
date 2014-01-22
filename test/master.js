@@ -80,7 +80,7 @@ describe('master', function() {
     it('for 0 workers', function() {
       var rsp = master.status();
       assert.equal(workerCount(), 0);
-      assert.deepEqual(rsp, {workers:[]});
+      assert.deepEqual(rsp, {master: {pid: process.pid}, workers:[]});
     });
 
 
@@ -124,7 +124,7 @@ describe('master', function() {
       cluster.once('online', function() {
         cluster.disconnect(function() {
           master.request({cmd:'status'}, function(rsp) {
-            assert.deepEqual(rsp, {workers:[]});
+            assert.deepEqual(rsp, {master:{pid: process.pid}, workers:[]});
             done();
           });
         });
