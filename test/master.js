@@ -80,7 +80,7 @@ describe('master', function() {
     it('for 0 workers', function() {
       var rsp = master.status();
       assert.equal(workerCount(), 0);
-      assert.deepEqual(rsp, {workers:[]});
+      assert.deepEqual(rsp, {master: {pid: process.pid}, workers:[]});
     });
 
 
@@ -124,7 +124,7 @@ describe('master', function() {
       cluster.once('online', function() {
         cluster.disconnect(function() {
           master.request({cmd:'status'}, function(rsp) {
-            assert.deepEqual(rsp, {workers:[]});
+            assert.deepEqual(rsp, {master:{pid: process.pid}, workers:[]});
             done();
           });
         });
@@ -240,20 +240,31 @@ describe('master', function() {
     });
   });
 
-  it('should set size in options when changed', function() {
-    master.start({size:0});
-    assert.equal(master.options.size, 0);
-    assert.equal(master.size, 0);
-    master.setSize(1);
-    assert.equal(master.options.size, 1);
-    assert.equal(master.size, 1);
-  });
+  describe('set size', function() {
+    it('should set in options when changed', function() {
+      master.start({size:0});
+      assert.equal(master.options.size, 0);
+      assert.equal(master.size, 0);
+      master.setSize(1);
+      assert.equal(master.options.size, 1);
+      assert.equal(master.size, 1);
+    });
 
-  it('should set size with json', function(done) {
-    master.request({cmd:'set-size', size:1});
-    master.once('startWorker', function() {
-      assert(workerCount() == 1);
-      done();
+    it('should set with json', function(done) {
+      master.request({cmd:'set-size', size:1});
+      master.once('startWorker', function() {
+        assert(workerCount() == 1);
+        done();
+      });
+    });
+
+    it('should emit when set', function(done) {
+      master.start({size:0});
+      master.setSize(0);
+      master.once('setSize', function(size) {
+        assert.equal(size, 0);
+        done();
+      });
     });
   });
 
@@ -613,9 +624,14 @@ describe('master', function() {
       master.once('resize', function() {
         var oldWorkers = Object.keys(cluster.workers);
         master.restart();
+        assert.deepEqual(master.getRestarting(), oldWorkers);
+        master.once('startRestart', function(workers) {
+          assert.deepEqual(workers, oldWorkers);
+        });
         master.once('restart', function() {
           var stillAlive = _.intersection(oldWorkers, Object.keys(cluster.workers));
           assert.equal(stillAlive.length, 0, 'no old workers are still alive');
+          assert.deepEqual(master.getRestarting(), null);
           done();
         });
       });
