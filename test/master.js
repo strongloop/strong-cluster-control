@@ -9,6 +9,7 @@ var _ = require('lodash');
 var client = require('../lib/client');
 var debug = require('../lib/debug');
 var master = require('../lib/master');
+var toPipe = require('../lib/pipe').toPipe;
 
 debug('master', process.pid);
 
@@ -41,6 +42,7 @@ describe('master', function() {
     master.removeAllListeners('startWorker');
     master.removeAllListeners('stopWorker');
     master.stop(function() {
+      debug('afterEach master stopped, disconnect cluster');
       cluster.disconnect(done);
     });
   });
@@ -78,7 +80,7 @@ describe('master', function() {
     it('for 0 workers', function() {
       var rsp = master.status();
       assert.equal(workerCount(), 0);
-      assert.deepEqual(rsp, {workers:[]});
+      assert.deepEqual(rsp, {master: {pid: process.pid}, workers:[]});
     });
 
 
@@ -122,7 +124,7 @@ describe('master', function() {
       cluster.once('online', function() {
         cluster.disconnect(function() {
           master.request({cmd:'status'}, function(rsp) {
-            assert.deepEqual(rsp, {workers:[]});
+            assert.deepEqual(rsp, {master:{pid: process.pid}, workers:[]});
             done();
           });
         });
@@ -178,7 +180,7 @@ describe('master', function() {
       master.once('start', connect);
 
       function connect(addr) {
-        assert.equal(addr, '_ctl');
+        assert.equal(addr, toPipe('_ctl'));
         client.request('_ctl', {cmd:'status'}, stop)
         .once('error', function(er) {
           console.log('client', er);
@@ -238,20 +240,31 @@ describe('master', function() {
     });
   });
 
-  it('should set size in options when changed', function() {
-    master.start({size:0});
-    assert.equal(master.options.size, 0);
-    assert.equal(master.size, 0);
-    master.setSize(1);
-    assert.equal(master.options.size, 1);
-    assert.equal(master.size, 1);
-  });
+  describe('set size', function() {
+    it('should set in options when changed', function() {
+      master.start({size:0});
+      assert.equal(master.options.size, 0);
+      assert.equal(master.size, 0);
+      master.setSize(1);
+      assert.equal(master.options.size, 1);
+      assert.equal(master.size, 1);
+    });
 
-  it('should set size with json', function(done) {
-    master.request({cmd:'set-size', size:1});
-    master.once('startWorker', function() {
-      assert(workerCount() == 1);
-      done();
+    it('should set with json', function(done) {
+      master.request({cmd:'set-size', size:1});
+      master.once('startWorker', function() {
+        assert(workerCount() == 1);
+        done();
+      });
+    });
+
+    it('should emit when set', function(done) {
+      master.start({size:0});
+      master.setSize(0);
+      master.once('setSize', function(size) {
+        assert.equal(size, 0);
+        done();
+      });
     });
   });
 
@@ -406,9 +419,10 @@ describe('master', function() {
 
   describe('should get resize event on return to configured size', function() {
     function assertClusterResizesToConfiguredSizeAfter(somethingHappens, done) {
-      master.start({size:5});
+      var SIZE = 5;
+      master.start({size:SIZE});
       master.once('resize', function(size) {
-        assert.equal(size, 5);
+        assert.equal(size, SIZE);
         somethingHappens(checkSizeInvariant);
       });
 
@@ -428,11 +442,23 @@ describe('master', function() {
       }, done);
     });
 
-    it('after worker kill', function(done) {
+    it('after worker destroy', function(done) {
       assertClusterResizesToConfiguredSizeAfter(function(done) {
         pickWorker()
           .once('exit', done)
-          .kill('SIGKILL');
+          .destroy('SIGKILL'); // .destroy is other, better, name for .kill
+      }, done);
+    });
+
+    it('after worker signal', function(done) {
+      this.timeout(5000); // exit is abnormal, and triggers throttling
+      assertClusterResizesToConfiguredSizeAfter(function(done) {
+        pickWorker()
+          .once('exit', done)
+          .process.kill('SIGKILL');
+          // use process.kill(), because it just sends a signal, whereas
+          // worker .kill() first disconnects, and then signals, so signal
+          // is usually never received
       }, done);
     });
 
@@ -486,9 +512,10 @@ describe('master', function() {
       function shutdown() {
         master.setSize(0);
         worker.once('exit', function(code,signal) {
-          // It will catch SIGTERM, and exit
-          assert.equal(signal, null);
-          assert(code !== null);
+          // On unix, node catches SIGTERM and exits with non-zero status. On
+          // Windows, it dies with SIGTERM. Either way, its not a normal exit
+          // (code === 0).
+          assert((code !== 0));
           done();
         });
       }
@@ -515,7 +542,14 @@ describe('master', function() {
         master[action](worker.id);
         worker.once('exit', function(code,signal) {
           debug('exit with',code,signal);
-          assert.equal(signal, 'SIGKILL');
+          if(process.platform === 'win32') {
+            // SIGTERM is emulated by libuv on Windows by calling
+            // TerminateProcess(), which cannot be blocked or caught
+            assert.equal(signal, 'SIGTERM');
+          } else {
+            // SIGTERM can be ignored on Unix, but SIGKILL cannot
+            assert.equal(signal, 'SIGKILL');
+          }
           assert.equal(code, null);
           done();
         });
@@ -590,9 +624,14 @@ describe('master', function() {
       master.once('resize', function() {
         var oldWorkers = Object.keys(cluster.workers);
         master.restart();
+        assert.deepEqual(master.getRestarting(), oldWorkers);
+        master.once('startRestart', function(workers) {
+          assert.deepEqual(workers, oldWorkers);
+        });
         master.once('restart', function() {
           var stillAlive = _.intersection(oldWorkers, Object.keys(cluster.workers));
           assert.equal(stillAlive.length, 0, 'no old workers are still alive');
+          assert.deepEqual(master.getRestarting(), null);
           done();
         });
       });

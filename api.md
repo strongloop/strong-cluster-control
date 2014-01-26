@@ -117,11 +117,11 @@ This is actually a subset of the possible locations, the
 Supported values are those described in `start()`, with a few extensions for
 `size`, which may be one of:
 
-1. a positive integer, or a string that converts to a positive integer, as for `start()`
+1. `0` - `N`, a positive integer, cluster size to maintain, as for `start()`
 2. `"default"`, or a string containing `"cpu"`, this will be converted to the
    number of cpus, see `control.CPUS`
-3. `0`, `"off"`, or anything else that isn't one of the previous values will be
-   converted to `0`, and indicate a preference for *not* clustering
+3. `"off"`, or anything else that isn't one of the previous values will indicate
+   a preference for *not* clustering
 
 The returned options object will contain the following fields that are not
 options to `start()`:
@@ -140,6 +140,8 @@ or just start the server if clustering was not requested.
 Returns the current cluster status similar to what's sent to
 `clusterctl status`. Its properties include:
 
+ - `master`: {Object}
+   - `pid`: The pid of the Master process.
  - `workers`: {Array} An Array of Objects containining the following properties:
     - `id`: The id of the Worker within the Master.
     - `pid`: The pid of the Worker process.
@@ -276,6 +278,13 @@ Event emitted when an error occurs. The only current source of errors is the con
 protocol, which may require logging of the errors, but should not effect the
 operation of the controller.
 
+### 'setSize'
+
+* {Integer} size, the number of workers requested (will always
+  be the same as `cluster.options.size`)
+
+Event emitted after `setSize()` is called.
+
 ### 'resize'
 
 * {Integer} size, the number of workers now that resize is complete (will always
@@ -291,6 +300,17 @@ changed or workers fork or exit, see `setSize()`.
 
 Event emitted after a worker which was started during a resize comes online, see the
 node API documentation for description of `worker` and "online".
+
+### 'startRestart'
+
+* `workers` {Array of worker IDs} Workers that are going to be restarted.
+
+Event emitted after `restart()` is called with array of worker IDs that will be
+restarted.
+
+### 'restart'
+
+Event emitted after after all the workers have been restarted.
 
 ### 'stopWorker'
 

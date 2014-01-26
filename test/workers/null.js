@@ -13,7 +13,7 @@ assert(!cluster.isMaster);
 
 onCommand(process.env);
 
-debug('worker env', process.env);
+//debug('worker env', process.env);
 debug('worker argv', process.argv);
 
 process.send({

@@ -1,8 +1,19 @@
 {
   "name": "strong-cluster-control",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "run-time managment of a node cluster",
   "license": "MIT",
+  "keywords": [
+    "runner",
+    "forever",
+    "supervisor",
+    "cluster",
+    "master",
+    "strong-agent",
+    "strongops",
+    "strongloop",
+    "strong-cli"
+  ],
   "main": "index.js",
   "bin": {
     "clusterctl": "bin/cli.js"
