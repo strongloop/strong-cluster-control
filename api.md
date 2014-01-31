@@ -137,6 +137,7 @@ Returns the current cluster status. Its properties include:
  - `workers`: {Array} An Array of Objects containining the following properties:
     - `id`: The id of the Worker within the Master.
     - `pid`: The pid of the Worker process.
+    - `uptime`: The age of the Worker process in milliseconds.
 
 ### control.setSize(N)
 

@@ -3,6 +3,7 @@ var cluster = require('cluster');
 var net = require('net');
 var os = require('os');
 var path = require('path');
+var util = require('util');
 
 var _ = require('lodash');
 
@@ -28,6 +29,25 @@ function pickWorker() {
   var workerIds = Object.keys(cluster.workers);
   var pickId = workerIds[randomInteger(workerIds.length)];
   return cluster.workers[pickId];
+}
+
+function assertWorker(worker) {
+  var failures = [];
+  if (!_.isFinite(worker.id)) {
+    failures.push('id invalid: ' + worker.id);
+  }
+  if (!_.isFinite(worker.pid) || worker.pid < 1) {
+    failures.push('pid invalid: ' + worker.pid);
+  }
+  if (!_.isFinite(worker.uptime)) {
+    failures.push('uptime invalid: ' + worker.uptime);
+  }
+  if (failures.length > 0) {
+    assert.fail(worker, { id: 'present', pid: '> 0', uptime: '> 0'},
+                'Worker not valid: ' + util.inspect(worker, 0) +
+                  ': ' + failures.join('\n'),
+               '==');
+  }
 }
 
 cluster.setupMaster({
@@ -85,9 +105,7 @@ describe('master', function() {
         assert.equal(workerCount(), 1);
         var rsp = master.status();
           assert.equal(rsp.workers.length, 1);
-          var w0 = rsp.workers[0];
-          assert(w0.id);
-          assert(w0.pid > 0);
+          assertWorker(rsp.workers[0]);
           done();
       });
     });
@@ -101,13 +119,7 @@ describe('master', function() {
         cluster.once('fork', function() {
           var rsp = master.status();
             assert.equal(rsp.workers.length, 2);
-            var w0 = rsp.workers[0];
-            assert(w0.id);
-            assert(w0.pid > 0);
-
-            var w1 = rsp.workers[1];
-            assert(w1.id);
-            assert(w1.pid > 0);
+            rsp.workers.forEach(assertWorker);
             done();
         });
       });
