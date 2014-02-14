@@ -2,7 +2,10 @@
   "name": "strong-cluster-control",
   "version": "0.3.0",
   "description": "run-time managment of a node cluster",
-  "license": "MIT",
+  "license": {
+    "name": "Dual MIT/StrongLoop",
+    "url": "https://github.com/strongloop/strong-cluster-control/blob/master/LICENSE"
+  },
   "keywords": [
     "runner",
     "forever",
