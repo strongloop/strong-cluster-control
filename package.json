@@ -1,8 +1,11 @@
 {
   "name": "strong-cluster-control",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "run-time managment of a node cluster",
-  "license": "MIT",
+  "license": {
+    "name": "Dual MIT/StrongLoop",
+    "url": "https://github.com/strongloop/strong-cluster-control/blob/master/LICENSE"
+  },
   "keywords": [
     "runner",
     "forever",
@@ -16,7 +19,8 @@
   ],
   "main": "index.js",
   "bin": {
-    "clusterctl": "bin/cli.js"
+    "clusterctl": "bin/cli.js",
+    "sl-clusterctl": "bin/cli.js"
   },
   "scripts": {
     "test": "mocha --reporter spec",
@@ -38,7 +42,7 @@
   },
   "devDependencies": {
     "mocha": "~1.9.0",
-    "jshint": "~2.0.1"
+    "jshint": "~2.4.3"
   },
   "engines": {
     "node": "*"
