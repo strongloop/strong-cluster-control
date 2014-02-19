@@ -1,7 +1,13 @@
 # Run-Time Management of a Node Cluster
 
 Module for run-time management of a node cluster.
+
 It is an extension of the node cluster module, not a replacement.
+
+An alternative to integrating strong-cluster-control into an application using
+the API is to use
+[strong-supervisor](https://github.com/strongloop/strong-supervisor), a
+runner-based wrapper that requires no code changes.
 
 For full documentation, see 
 [StrongLoop Suite Documentation - Clustering applications](http://docs.strongloop.com/display/DOC/Clustering+applications).
