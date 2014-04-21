@@ -68,9 +68,9 @@ To control the cluster, assuming `my-server` is running in `/apps/`:
     worker id 2: { pid: 11473 }
     worker id 3: { pid: 11475 }
 
-For more in-depth examples, see the [chat server example](https://github.com/strongloop/slnode-examples/tree/master/chat),
-and the
-[in-source example](https://github.com/strongloop/strong-cluster-control/blob/master/bin/example-master.js).
+For more in-depth examples, see the
+[in-source example](https://github.com/strongloop/strong-cluster-control/blob/master/bin/example-master.js),
+or use [strong-supervisor](https://github.com/strongloop/strong-supervisor).
 
 
 ## clusterctl: Command Line Interface
