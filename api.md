@@ -23,12 +23,6 @@ The options are:
 * `env`: {Object} Environment properties object passed to `cluster.fork()` if
   the controller has to start a worker to resize the cluster, default is null.
 
-* `addr`: {String or Integer} Address to listen on for control, defaults to first of
-  `options.path`, `options.port`, or `control.ADDR` that is defined.
-* `path`: {String} Path to listen on for control, no default.
-* `port`: {Integer} Localhost port to listen on for control, may be necessary to
-  use on Windows, no default.
-
 * `shutdownTimeout`: {Milliseconds} Number of milliseconds to wait after
   shutdown before terminating a worker, the default is 5 seconds, see
   `.shutdown()`
@@ -51,8 +45,7 @@ The 'start' event is emitted after the controller is started.
 Stop the controller, after stopping workers (if the size is being controlled,
 see `setSize()`).
 
-Remove event listeners that were set on the `cluster` module, and stop listening
-on the control port.
+Remove event listeners that were set on the `cluster` module.
 
 * `callback`: {Function} A callback function, it is set as a listener for
   the `'stop'` event.
@@ -137,8 +130,7 @@ or just start the server if clustering was not requested.
 
 ### control.status()
 
-Returns the current cluster status similar to what's sent to
-`clusterctl status`. Its properties include:
+Returns the current cluster status. Its properties include:
 
  - `master`: {Object}
    - `pid`: The pid of the Master process.
@@ -244,11 +236,6 @@ matching `cmd` property:
         }
     });
 
-### control.ADDR
-
-`'clusterctl'`, the default address of the control server, if none other are
-specified through `options`.
-
 ### control.CPUS
 
 The number of CPUs reported by node's `os.cpus().length`, this is a good default
@@ -323,14 +310,3 @@ API documentation for a description of `worker`.
 
 The values of `code` and `signal`, as well as of `worker.suicide`, can be used
 to determine how gracefully the worker was stopped. See `.terminate()`.
-
-### 'listening'
-
-Event emitted when the controller has been bound after calling `server.listen`.
-
-### 'connection'
-
-* {Socket object} The connection object
-
-Event emitted when a new connection is made. `socket` is an instance of
-`net.Socket`.

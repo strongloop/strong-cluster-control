@@ -6,10 +6,8 @@ var path = require('path');
 
 var _ = require('lodash');
 
-var client = require('../lib/client');
 var debug = require('../lib/debug');
 var master = require('../lib/master');
-var toPipe = require('../lib/pipe').toPipe;
 
 debug('master', process.pid);
 
@@ -53,10 +51,6 @@ describe('master', function() {
   });
 
   describe('should expose', function() {
-    it('default socket address', function() {
-      assert.equal(master.ADDR, 'clusterctl');
-    });
-
     it('cpu count, for easy use as a default size', function() {
       assert.equal(master.CPUS, os.cpus().length);
     });
@@ -88,13 +82,12 @@ describe('master', function() {
       cluster.fork();
       cluster.once('fork', function() {
         assert.equal(workerCount(), 1);
-        master.request({cmd:'status'}, function(rsp) {
+        var rsp = master.status();
           assert.equal(rsp.workers.length, 1);
           var w0 = rsp.workers[0];
           assert(w0.id);
           assert(w0.pid > 0);
           done();
-        });
       });
     });
 
@@ -105,7 +98,7 @@ describe('master', function() {
       cluster.once('fork', function() {
         cluster.fork();
         cluster.once('fork', function() {
-          master.request({cmd:'status'}, function(rsp) {
+          var rsp = master.status();
             assert.equal(rsp.workers.length, 2);
             var w0 = rsp.workers[0];
             assert(w0.id);
@@ -115,7 +108,6 @@ describe('master', function() {
             assert(w1.id);
             assert(w1.pid > 0);
             done();
-          });
         });
       });
     });
@@ -123,10 +115,9 @@ describe('master', function() {
     it('for 0 workers, after resize', function(done) {
       cluster.once('online', function() {
         cluster.disconnect(function() {
-          master.request({cmd:'status'}, function(rsp) {
+          var rsp = master.status();
             assert.deepEqual(rsp, {master:{pid: process.pid}, workers:[]});
             done();
-          });
         });
       });
       cluster.fork();
@@ -175,56 +166,6 @@ describe('master', function() {
       });
     });
 
-    it('on path', function(done) {
-      master.start({path:'_ctl'});
-      master.once('start', connect);
-
-      function connect(addr) {
-        assert.equal(addr, toPipe('_ctl'));
-        client.request('_ctl', {cmd:'status'}, stop)
-        .once('error', function(er) {
-          console.log('client', er);
-        });
-      }
-
-      function stop() {
-        master.stop();
-        master.once('stop', done);
-      }
-
-      master.once('error', function(er) {
-        console.log('master', er);
-      });
-    });
-
-    it('on port', function(done) {
-      master.start({port:4321});
-      master.once('start', connect);
-
-      function connect(addr) {
-        assert.equal(addr.port, 4321, toString(addr));
-        client.request(4321, {cmd:'status'}, stop)
-        .once('error', function(er) {
-          console.log('client', er);
-        });
-      }
-
-      function stop() {
-        master.stop();
-        master.once('stop', done);
-      }
-
-      master.once('error', function(er) {
-        console.log('master', er);
-      });
-    });
-  });
-
-  it('should return error for unsupported requests', function(done) {
-    master.request({cmd:'no-such-command'}, function(rsp) {
-      assert(/no-such-command/.test(rsp.error));
-      done();
-    });
   });
 
   it('should use options.env with fork', function(done) {
@@ -248,14 +189,6 @@ describe('master', function() {
       master.setSize(1);
       assert.equal(master.options.size, 1);
       assert.equal(master.size, 1);
-    });
-
-    it('should set with json', function(done) {
-      master.request({cmd:'set-size', size:1});
-      master.once('startWorker', function() {
-        assert(workerCount() == 1);
-        done();
-      });
     });
 
     it('should emit when set', function(done) {
