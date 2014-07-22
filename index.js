@@ -47,5 +47,3 @@ if (cluster.isMaster) {
   exports.cmd = require('./lib/msg');
   exports.loadOptions = require('./lib/load-options');
 }
-
-module.exports.cli = require('./lib/cli');
