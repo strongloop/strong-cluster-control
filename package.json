@@ -12,12 +12,8 @@
     "master",
     "pm",
     "runner",
-    "strong-agent",
-    "strong-cli",
     "strongloop",
     "strongops",
-    "strong-pm",
-    "strong-supervisor",
     "supervisor"
   ],
   "main": "index.js",
