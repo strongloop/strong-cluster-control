@@ -1,3 +1,11 @@
+2014-10-02, Version 1.0.0
+=========================
+
+ * package: remove module names from keywords (Sam Roberts)
+
+ * Update contribution guidelines (Ryan Graham)
+
+
 2014-08-21, Version 0.5.1
 =========================
 
