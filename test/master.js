@@ -73,6 +73,7 @@ describe('master', function() {
   describe('should report status array', function() {
     it('for 0 workers', function() {
       var rsp = master.status();
+      delete rsp.master.setSize;
       assert.equal(workerCount(), 0);
       assert.deepEqual(rsp, {master: {pid: process.pid}, workers:[]});
     });
@@ -116,8 +117,9 @@ describe('master', function() {
       cluster.once('online', function() {
         cluster.disconnect(function() {
           var rsp = master.status();
-            assert.deepEqual(rsp, {master:{pid: process.pid}, workers:[]});
-            done();
+          delete rsp.master.setSize;
+          assert.deepEqual(rsp, {master:{pid: process.pid}, workers:[]});
+          done();
         });
       });
       cluster.fork();
@@ -186,9 +188,11 @@ describe('master', function() {
       master.start({size:0});
       assert.equal(master.options.size, 0);
       assert.equal(master.size, 0);
+      assert.equal(master.status().master.setSize, 0);
       master.setSize(1);
       assert.equal(master.options.size, 1);
       assert.equal(master.size, 1);
+      assert.equal(master.status().master.setSize, 1);
     });
 
     it('should emit when set', function(done) {
