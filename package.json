@@ -1,6 +1,6 @@
 {
   "name": "strong-cluster-control",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "node cluster API wrapper and extensions",
   "license": {
     "name": "Dual Artistic/StrongLoop",
