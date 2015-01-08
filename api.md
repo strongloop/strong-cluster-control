@@ -67,67 +67,6 @@ Old workers will be restarted only if the last worker to be restarted stays
 alive for more than `throttleDelay` milliseconds, ensuring that the current
 workers will not all be killed while the new workers are failing to start.
 
-### control.loadOptions([defaults])
-
-Load options from configuration files, environment, or command line.
-
-* `defaults`: {Object} Default options, see `start()` for description
-  of supported options.
-
-An options object is returned that is suitable for passing directly to
-`start()`. How you use it is up to you, but it can be conveniently used to
-implement optionally clustered applications, ones that run unclustered when
-deployed as single instances, perhaps behind a load balancer, or that can be
-deployed as a node cluster.
-
-Here is an example of the above usage pattern:
-
-    // app.js
-    var control = require('strong-cluster-control');
-    var options = control.loadOptions();
-    if(options.clustered && options.isMaster) {
-        return control.start(options);
-    }
-
-    // Server setup... or any work that should be done in the master if
-    // the application is not being clustered, or in the worker if it
-    // is being clustered.
-
-The options values are derived from the following configuration sources:
-
-- command line arguments (parsed by optimist): if your app ignores unknown
-  options, options can be set on the command line, ex. `node app.js --size=2`
-- environment variables prefixed with `cluster_`: note that the variable must be
-  lower case, ex. `cluster_size=2 node app.js`
-- `.clusterrc` in either json or ini format: can be in the current working
-  directory, or any parent paths
-- `defaults`: as passed in, if any
-
-This is actually a subset of the possible locations, the
-[rc](https://npmjs.org/package/rc) module is used with an `appname` of
-"cluster", see it's documentation for more information.
-
-Supported values are those described in `start()`, with a few extensions for
-`size`, which may be one of:
-
-1. `0` - `N`, a positive integer, cluster size to maintain, as for `start()`
-2. `"default"`, or a string containing `"cpu"`, this will be converted to the
-   number of cpus, see `control.CPUS`
-3. `"off"`, or anything else that isn't one of the previous values will indicate
-   a preference for *not* clustering
-
-The returned options object will contain the following fields that are not
-options to `start()`:
-
-- clustered: false if size is 0 (after above conversions), true if a cluster
-  size was specified
-- isMaster, isWorker: identical to the properties of the same name in the
-  cluster module
-
-The combination of the above three allows you to determine if you are a worker,
-or not, and if you are a master, if you should start the cluster control module,
-or just start the server if clustering was not requested.
-
 ### control.status()
 
 Returns the current cluster status. Its properties include:
