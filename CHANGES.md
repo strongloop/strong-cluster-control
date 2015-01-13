@@ -1,3 +1,17 @@
+2015-01-13, Version 2.0.0
+=========================
+
+ * Remove loadOptions(), its no longer used (Sam Roberts)
+
+ * Update dev dependencies to work on Windows (Ryan Graham)
+
+ * Add utility to humanize duration (Ryan Graham)
+
+ * Add uptime to worker status (Ryan Graham)
+
+ * Fix bad CLA URL in CONTRIBUTING.md (Ryan Graham)
+
+
 2014-12-12, Version 1.0.2
 =========================
 
