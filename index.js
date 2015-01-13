@@ -45,5 +45,4 @@ if (cluster.isMaster) {
     return this;
   };
   exports.cmd = require('./lib/msg');
-  exports.loadOptions = require('./lib/load-options');
 }
