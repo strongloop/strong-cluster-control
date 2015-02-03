@@ -10,7 +10,7 @@ the API is to use
 runner-based wrapper that requires no code changes.
 
 For full documentation, see 
-[StrongLoop Documentation](http://docs.strongloop.com/display/SLC/Application+clustering).
+[StrongLoop Documentation](http://docs.strongloop.com/display/SLC/Clustering).
 
 - runs `size` workers (optionally), and monitors them for unexpected death
 - run-time control of cluster through command line and API
