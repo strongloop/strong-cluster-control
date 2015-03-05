@@ -18,8 +18,8 @@
   ],
   "main": "index.js",
   "scripts": {
-    "test": "mocha --reporter spec",
-    "lint": "./node_modules/.bin/jshint *.js test lib"
+    "lint": "eslint lib *.js && jscs lib *.js",
+    "test": "mocha --reporter spec"
   },
   "repository": {
     "type": "git",
@@ -34,7 +34,8 @@
     "lodash": "^2.2.0"
   },
   "devDependencies": {
-    "jshint": "^2.5.11",
+    "eslint": "^0.15.1",
+    "jscs": "^1.11.3",
     "mocha": "^2.1.0"
   },
   "engines": {
