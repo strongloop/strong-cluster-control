@@ -18,7 +18,7 @@
   ],
   "main": "index.js",
   "scripts": {
-    "lint": "eslint lib *.js && jscs lib *.js",
+    "lint": "eslint . && jscs .",
     "test": "mocha --reporter spec"
   },
   "repository": {
@@ -34,7 +34,7 @@
     "lodash": "^2.2.0"
   },
   "devDependencies": {
-    "eslint": "^0.15.1",
+    "eslint": "^0.17.1",
     "jscs": "^1.11.3",
     "mocha": "^2.1.0"
   },
