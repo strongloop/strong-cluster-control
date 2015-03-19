@@ -1,16 +1,8 @@
-# Run-Time Management of a Node Cluster
+# strong-cluster-control
 
-Module for run-time management of a node cluster.
+node cluster API wrapper and extensions
 
 It is an extension of the node cluster module, not a replacement.
-
-An alternative to integrating strong-cluster-control into an application using
-the API is to use
-[strong-supervisor](https://github.com/strongloop/strong-supervisor), a
-runner-based wrapper that requires no code changes.
-
-For full documentation, see 
-[StrongLoop Documentation](http://docs.strongloop.com/display/SLC/Clustering).
 
 - runs `size` workers (optionally), and monitors them for unexpected death
 - run-time control of cluster through command line and API
@@ -48,6 +40,18 @@ if(cluster.isWorker) {
 }
 ```
 
-For more in-depth examples, see the
-[in-source example](https://github.com/strongloop/strong-cluster-control/blob/master/bin/example-master.js),
-or use [strong-supervisor](https://github.com/strongloop/strong-supervisor).
+
+## API
+
+See http://apidocs.strongloop.com/strong-cluster-control/
+
+
+## License
+
+strong-cluster-control uses a dual license model.
+
+You may use this library under the terms of the [Artistic 2.0 license][],
+or under the terms of the [StrongLoop Subscription Agreement][].
+
+[Artistic 2.0 license]: http://opensource.org/licenses/Artistic-2.0
+[StrongLoop Subscription Agreement]: http://strongloop.com/license
