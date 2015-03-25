@@ -5,13 +5,14 @@ node cluster API wrapper and extensions
 It is an extension of the node cluster module, not a replacement.
 
 - runs `size` workers (optionally), and monitors them for unexpected death
-- run-time control of cluster through command line and API
 - soft shutdown as well as hard termination of workers
 - throttles worker restart rate if they are exiting abnormally
 
 It can be added to an existing application using the node cluster module without
 modifying how that application is currently starting up or using cluster, and
 still make use of additional features.
+
+This is a component of the StrongLoop process manager, see http://strong-pm.io.
 
 
 ## Install
