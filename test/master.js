@@ -7,7 +7,7 @@ var util = require('util');
 
 var _ = require('lodash');
 
-var debug = require('../lib/debug');
+var debug = require('debug')('strong-cluster-control:test');
 var master = require('../lib/master');
 
 debug('master', process.pid);

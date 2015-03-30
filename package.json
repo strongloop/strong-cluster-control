@@ -30,7 +30,7 @@
     "email": "sam@strongloop.com"
   },
   "dependencies": {
-    "debuglog": "~0.0.1",
+    "debug": "^2.1.3",
     "lodash": "^2.2.0"
   },
   "devDependencies": {
