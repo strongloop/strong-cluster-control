@@ -1,4 +1,24 @@
-2015-01-13, Version 2.0.0
+2015-03-31, Version 2.0.1
+=========================
+
+ * debug: switch from debuglog to visonmedia/debug (Sam Roberts)
+
+ * ui: remove unused lib/ui.js and test/ui.js (Sam Roberts)
+
+ * package: update jscs ignore rule (Sam Roberts)
+
+ * Update README for strong-pm.io (Sam Roberts)
+
+ * package: update eslint to 0.17 (Sam Roberts)
+
+ * Update README (Sam Roberts)
+
+ * lint: add eslint and jscs support (Sam Roberts)
+
+ * Fix broken link (Rand McKinney)
+
+
+2015-01-12, Version 2.0.0
 =========================
 
  * Remove loadOptions(), its no longer used (Sam Roberts)
