@@ -5,7 +5,7 @@ var cluster = require('cluster');
 var net = require('net');
 
 var control = require('../../index');
-var debug = require('../../lib/debug');
+var debug = require('debug')('strong-cluster-control:workers:null');
 
 debug('worker start id', cluster.worker.id, 'cmd:', process.env.cmd);
 
