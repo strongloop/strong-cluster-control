@@ -33,7 +33,7 @@ function pickWorker() {
 
 function assertWorker(worker) {
   var failures = [];
-  if (!_.isFinite(worker.id)) {
+  if (!_.isFinite(_.parseInt(worker.id, 10))) {
     failures.push('id invalid: ' + worker.id);
   }
   if (!_.isFinite(worker.pid) || worker.pid < 1) {
