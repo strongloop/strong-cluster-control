@@ -42,8 +42,12 @@ function assertWorker(worker) {
   if (!_.isFinite(worker.uptime)) {
     failures.push('uptime invalid: ' + worker.uptime);
   }
+  if (!_.isFinite(worker.startTime)) {
+    failures.push('startTime invalid: ' + worker.startTime);
+  }
   if (failures.length > 0) {
-    assert.fail(worker, { id: 'present', pid: '> 0', uptime: '> 0'},
+    assert.fail(worker, {id: 'present', pid: '> 0', uptime: '> 0',
+                         startTime: 'valid'},
                 'Worker not valid: ' + util.inspect(worker, 0) +
                   ': ' + failures.join('\n'),
                '==');
@@ -75,6 +79,10 @@ describe('master', function() {
       assert.equal(master.CPUS, os.cpus().length);
     });
 
+    it('master process start time', function() {
+      assert(_.isFinite(master.startTime));
+    });
+
     it('message cmd names in master', function() {
       assert.equal(master.cmd.SHUTDOWN, 'CLUSTER_CONTROL_shutdown');
     });
@@ -94,6 +102,8 @@ describe('master', function() {
     it('for 0 workers', function() {
       var rsp = master.status();
       delete rsp.master.setSize;
+      assert(_.isFinite(rsp.master.startTime));
+      delete rsp.master.startTime;
       assert.equal(workerCount(), 0);
       assert.deepEqual(rsp, {master: {pid: process.pid}, workers:[]});
     });
@@ -130,6 +140,8 @@ describe('master', function() {
         cluster.disconnect(function() {
           var rsp = master.status();
           delete rsp.master.setSize;
+          assert(_.isFinite(rsp.master.startTime));
+          delete rsp.master.startTime;
           assert.deepEqual(rsp, {master:{pid: process.pid}, workers:[]});
           done();
         });
@@ -227,6 +239,7 @@ describe('master', function() {
         assert(worker);
         assert(worker.id);
         assert(worker.process.pid);
+        assert(_.isFinite(worker.startTime));
 
         sawNewWorker += 1;
 
