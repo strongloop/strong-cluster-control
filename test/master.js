@@ -175,6 +175,22 @@ describe('master', function() {
     });
   });
 
+  describe('worker agumentations', function(done) {
+    it('should emit a "fork" event on workers', function(done) {
+      master.start(function() {
+        var worker = cluster.fork();
+        worker.once('fork', function() {
+          assert(_.isFinite(worker.startTime));
+          assert(_.isFinite(worker.process.pid));
+          worker.process.kill('SIGINT');
+        }).on('exit', function(code, signal) {
+          assert.equal(signal, 'SIGINT');
+          done();
+        });
+      });
+    });
+  });
+
   describe('should start', function() {
     describe('and stop', function() {
       it('notifying with events', function(done) {
