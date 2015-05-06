@@ -1,4 +1,20 @@
-2015-03-31, Version 2.0.1
+2015-05-06, Version 2.1.0
+=========================
+
+ * Avoid nextTick recursion by using setImmediate (Sam Roberts)
+
+ * Fix busy-loop on resize after disconnect (Sam Roberts)
+
+ * emit custom 'fork' events with s-c-c metadata (Ryan Graham)
+
+ * test: clean up lint warnings (Ryan Graham)
+
+ * deps: upgrade lodash to v3.x (Ryan Graham)
+
+ * Record and report startTime of every process (Ryan Graham)
+
+
+2015-03-30, Version 2.0.1
 =========================
 
  * debug: switch from debuglog to visonmedia/debug (Sam Roberts)
