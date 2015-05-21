@@ -1,3 +1,11 @@
+2015-05-21, Version 2.1.1
+=========================
+
+ * shutdown: don't wait for workers that have exited (Sam Roberts)
+
+ * master: sort require statements (Sam Roberts)
+
+
 2015-05-06, Version 2.1.0
 =========================
 
