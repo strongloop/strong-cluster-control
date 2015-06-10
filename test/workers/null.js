@@ -17,33 +17,33 @@ onCommand(process.env);
 debug('worker argv', process.argv);
 
 process.send({
-  env:process.env,
-  argv:process.argv
+  env: process.env,
+  argv: process.argv
 });
 
 process.on('message', onCommand);
 
 function onCommand(msg) {
-  if(msg.cmd === 'EXIT') {
+  if (msg.cmd === 'EXIT') {
     return process.exit(msg.code);
   }
-  if(msg.cmd === 'BUSY') {
+  if (msg.cmd === 'BUSY') {
     makeBusy(function() {
-      return process.send({cmd:'BUSY'});
+      return process.send({cmd: 'BUSY'});
     });
   }
-  if(msg.cmd === 'LOOP') {
+  if (msg.cmd === 'LOOP') {
     makeUnexitable(function() {
-      return process.send({cmd:'LOOP'});
+      return process.send({cmd: 'LOOP'});
     });
   }
-  if(msg.cmd === 'GRACEFUL') {
+  if (msg.cmd === 'GRACEFUL') {
     return shutdownGracefully();
   }
-  if(msg.cmd === 'ERROR') {
+  if (msg.cmd === 'ERROR') {
     throw Error('On command, I error!');
   }
-  if(msg.cmd === 'TEST-API-STUB') {
+  if (msg.cmd === 'TEST-API-STUB') {
     testApiStub();
   }
 }
@@ -70,7 +70,7 @@ function shutdownGracefully() {
     debug('worker, message', msg,
           'shutdown?', control.cmd.SHUTDOWN,
           'connections=', connections.length);
-    if(msg.cmd === control.cmd.SHUTDOWN) {
+    if (msg.cmd === control.cmd.SHUTDOWN) {
       connections.forEach(function(conn) {
         debug('worker says bye to peer', conn.remotePort);
         conn.end('bye');
@@ -92,7 +92,11 @@ function shutdownGracefully() {
 
 function makeUnexitable(callback) {
   process.on('SIGTERM', function() { }); // Ignore SIGTERM
-  process.on('exit', function() { while(true){} });
+  process.on('exit', function() {
+    /* eslint no-constant-condition:0 */
+    /* eslint no-empty:0 */
+    while (true){}
+  });
   process.nextTick(callback);
 }
 
@@ -100,7 +104,8 @@ function makeUnexitable(callback) {
 // happen until all connections to servers are closed, so create a connection to
 // self and don't close
 function makeBusy(callback) {
-  var server, client, port;
+  var server;
+  var port;
 
   server = net.createServer()
     .listen(0, function() {
@@ -129,7 +134,7 @@ function makeBusy(callback) {
 
   function createClient() {
     debug('worker: connect to port', port);
-    client = net.connect(port)
+    net.connect(port)
       .on('connect', function() {
         debug('worker: on client/connect, send ONLINE to master');
         callback();
@@ -141,7 +146,7 @@ function makeBusy(callback) {
 function testApiStub() {
   control.start({
     size: control.CPUS
-  }).on('error', function(er) {
+  }).on('error', function() {
   }).stop(function () {
   }).once('error', function() {
   });

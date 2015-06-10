@@ -2,7 +2,6 @@ var assert = require('assert');
 var cluster = require('cluster');
 var net = require('net');
 var os = require('os');
-var path = require('path');
 var util = require('util');
 
 var _ = require('lodash');
@@ -14,11 +13,6 @@ debug('master', process.pid);
 
 function workerCount() {
   return Object.keys(cluster.workers).length;
-}
-
-function firstWorker() {
-  var id = Object.keys(cluster.workers)[0];
-  return cluster.workers[id];
 }
 
 function randomInteger(I) {
@@ -105,7 +99,7 @@ describe('master', function() {
       assert(_.isFinite(rsp.master.startTime));
       delete rsp.master.startTime;
       assert.equal(workerCount(), 0);
-      assert.deepEqual(rsp, {master: {pid: process.pid}, workers:[]});
+      assert.deepEqual(rsp, {master: {pid: process.pid}, workers: []});
     });
 
 
@@ -142,7 +136,7 @@ describe('master', function() {
           delete rsp.master.setSize;
           assert(_.isFinite(rsp.master.startTime));
           delete rsp.master.startTime;
-          assert.deepEqual(rsp, {master:{pid: process.pid}, workers:[]});
+          assert.deepEqual(rsp, {master: {pid: process.pid}, workers: []});
           done();
         });
       });
@@ -175,7 +169,7 @@ describe('master', function() {
     });
   });
 
-  describe('worker agumentations', function(done) {
+  describe('worker agumentations', function() {
     it('should emit a "fork" event on workers', function(done) {
       master.start(function() {
         var worker = cluster.fork();
@@ -213,7 +207,7 @@ describe('master', function() {
   it('should use options.env with fork', function(done) {
     master.start({
       size: 1,
-      env:{SOME_VAR:'MY VALUE'}
+      env: {SOME_VAR: 'MY VALUE'}
     });
     master.once('startWorker', function(worker) {
       worker.once('message', function(msg) {
@@ -225,7 +219,7 @@ describe('master', function() {
 
   describe('set size', function() {
     it('should set in options when changed', function() {
-      master.start({size:0});
+      master.start({size: 0});
       assert.equal(master.options.size, 0);
       assert.equal(master.size, 0);
       assert.equal(master.status().master.setSize, 0);
@@ -236,7 +230,7 @@ describe('master', function() {
     });
 
     it('should emit when set', function(done) {
-      master.start({size:0});
+      master.start({size: 0});
       master.setSize(0);
       master.once('setSize', function(size) {
         assert.equal(size, 0);
@@ -249,7 +243,7 @@ describe('master', function() {
     it('from a fork before start', function(done) {
       var sawNewWorker = 0;
       cluster.fork();
-      master.start({size:3});
+      master.start({size: 3});
       master.once('startWorker', function startWorker(worker) {
         // Make sure our argument is really a worker.
         assert(worker);
@@ -259,8 +253,8 @@ describe('master', function() {
 
         sawNewWorker += 1;
 
-        if(sawNewWorker == 2) {
-          assert(workerCount() == 3);
+        if (sawNewWorker === 2) {
+          assert(workerCount() === 3);
           return done();
         }
         master.once('startWorker', startWorker);
@@ -268,18 +262,18 @@ describe('master', function() {
     });
 
     it('from size 1 to 2', function(done) {
-      master.start({size:1});
+      master.start({size: 1});
       master.once('startWorker', function() {
         master.setSize(2);
         master.once('startWorker', function() {
-          assert(workerCount() == 2);
+          assert(workerCount() === 2);
           done();
         });
       });
     });
 
     it('from size 1 to 0', function(done) {
-      master.start({size:1});
+      master.start({size: 1});
       master.once('startWorker', function() {
         master.setSize(0);
       });
@@ -292,9 +286,9 @@ describe('master', function() {
     });
 
     it('from size 3 to 1', function(done) {
-      master.start({size:3});
+      master.start({size: 3});
       master.on('startWorker', function() {
-        if(workerCount() == 3) {
+        if (workerCount() === 3) {
           master.setSize(1);
         }
       });
@@ -309,55 +303,55 @@ describe('master', function() {
     });
 
     it('to last of concurrent resizes', function(done) {
-      master.start({size:10});
+      master.start({size: 10});
       master.on('startWorker', function() {
-        if(workerCount() == 3) {
+        if (workerCount() === 3) {
           master.setSize(5);
         }
-        if(workerCount() == 5) {
+        if (workerCount() === 5) {
           master.setSize(2);
         }
       });
 
-      master.on('stopWorker', function(worker) {
-        if(workerCount() == 3) {
+      master.on('stopWorker', function() {
+        if (workerCount() === 3) {
           master.setSize(0);
         }
-        if(workerCount() === 0) {
+        if (workerCount() === 0) {
           done();
         }
       });
     });
 
     it('while workers are forked', function(done) {
-      master.start({size:10});
+      master.start({size: 10});
       master.on('startWorker', function() {
-        if(workerCount() == 1) {
+        if (workerCount() === 1) {
           cluster.fork();
         }
-        if(workerCount() == 3) {
+        if (workerCount() === 3) {
           master.setSize(5);
           cluster.fork();
         }
-        if(workerCount() == 5) {
+        if (workerCount() === 5) {
           master.setSize(2);
         }
       });
 
-      master.on('stopWorker', function(worker) {
-        if(workerCount() == 3) {
+      master.on('stopWorker', function() {
+        if (workerCount() === 3) {
           master.setSize(0);
         }
-        if(workerCount() === 0) {
+        if (workerCount() === 0) {
           done();
         }
       });
     });
 
     it('while too many workers are forked', function(done) {
-      master.start({size:5});
+      master.start({size: 5});
       master.on('startWorker', function() {
-        if(workerCount() == 3) {
+        if (workerCount() === 3) {
           cluster.fork();
           cluster.fork();
           cluster.fork();
@@ -375,7 +369,7 @@ describe('master', function() {
       // throttling, workers get forked faster than dozens per second, with
       // throttling, it should be no more than a couple a second.
       var TIME = 5000;
-      var FORKS = TIME/1000 * 2;
+      var FORKS = TIME / 1000 * 2;
       var forks = 0;
       this.timeout(2 * TIME);
 
@@ -384,12 +378,12 @@ describe('master', function() {
         env: {cmd: 'EXIT'}
       });
 
-      cluster.on('fork', function forkCounter(worker) {
+      cluster.on('fork', function forkCounter() {
         forks++;
       });
 
       setTimeout(function() {
-        assert(forks < FORKS, 'forked '+forks+' times!');
+        assert(forks < FORKS, 'forked ' + forks + ' times!');
         return done();
       }, TIME);
     });
@@ -398,7 +392,7 @@ describe('master', function() {
   describe('should get resize event on return to configured size', function() {
     function assertClusterResizesToConfiguredSizeAfter(somethingHappens, done) {
       var SIZE = 5;
-      master.start({size:SIZE});
+      master.start({size: SIZE});
       master.once('resize', function(size) {
         assert.equal(size, SIZE);
         somethingHappens(checkSizeInvariant);
@@ -445,7 +439,7 @@ describe('master', function() {
       assertClusterResizesToConfiguredSizeAfter(function(done) {
         pickWorker()
           .once('exit', done)
-          .send({ cmd: 'EXIT' });
+          .send({cmd: 'EXIT'});
       }, done);
     });
 
@@ -464,7 +458,7 @@ describe('master', function() {
 
       function shutdown() {
         master.setSize(0);
-        worker.once('exit', function(code,signal) {
+        worker.once('exit', function(code, signal) {
           assert.equal(signal, null);
           assert.equal(code, 0);
           done();
@@ -479,9 +473,9 @@ describe('master', function() {
       cluster.once('online', setBusy);
 
       function setBusy() {
-        worker.send({cmd:'BUSY'});
+        worker.send({cmd: 'BUSY'});
         worker.on('message', function(msg) {
-          if(msg.cmd === 'BUSY') {
+          if (msg.cmd === 'BUSY') {
             shutdown();
           }
         });
@@ -489,7 +483,7 @@ describe('master', function() {
 
       function shutdown() {
         master.setSize(0);
-        worker.once('exit', function(code,signal) {
+        worker.once('exit', function(code) {
           // On unix, node catches SIGTERM and exits with non-zero status. On
           // Windows, it dies with SIGTERM. Either way, its not a normal exit
           // (code === 0).
@@ -508,9 +502,9 @@ describe('master', function() {
       cluster.once('online', setBusy);
 
       function setBusy() {
-        worker.send({cmd:'LOOP'});
+        worker.send({cmd: 'LOOP'});
         worker.on('message', function(msg) {
-          if(msg.cmd === 'LOOP') {
+          if (msg.cmd === 'LOOP') {
             stopWorker();
           }
         });
@@ -518,9 +512,9 @@ describe('master', function() {
 
       function stopWorker() {
         master[action](worker.id);
-        worker.once('exit', function(code,signal) {
-          debug('exit with',code,signal);
-          if(process.platform === 'win32') {
+        worker.once('exit', function(code, signal) {
+          debug('exit with', code, signal);
+          if (process.platform === 'win32') {
             // SIGTERM is emulated by libuv on Windows by calling
             // TerminateProcess(), which cannot be blocked or caught
             assert.equal(signal, 'SIGTERM');
@@ -564,7 +558,7 @@ describe('master', function() {
     var serverExit;
 
     function maybeDone() {
-      if(serverBye && serverExit)
+      if (serverBye && serverExit)
         done();
     }
 
@@ -607,7 +601,8 @@ describe('master', function() {
           assert.deepEqual(workers, oldWorkers);
         });
         master.once('restart', function() {
-          var stillAlive = _.intersection(oldWorkers, Object.keys(cluster.workers));
+          var stillAlive = _.intersection(
+            oldWorkers, Object.keys(cluster.workers));
           assert.equal(stillAlive.length, 0, 'no old workers are still alive');
           assert.deepEqual(master.getRestarting(), null);
           done();
@@ -630,8 +625,10 @@ describe('master', function() {
         process.env.cmd = 'EXIT';
         master.restart();
         master.once('restart', function() {
-          assert(!process.env.cmd, 'restart should not finish until workers stop dieing');
-          var stillAlive = _.intersection(oldWorkers, Object.keys(cluster.workers));
+          assert(!process.env.cmd,
+                 'restart should not finish until workers stop dieing');
+          var stillAlive = _.intersection(
+            oldWorkers, Object.keys(cluster.workers));
           debug('on restart, orig:', oldWorkers);
           debug('on restart, aliv:', stillAlive);
           assert.equal(stillAlive.length, 0, 'no old workers are still alive');
@@ -644,8 +641,9 @@ describe('master', function() {
         cluster.once('fork', checkDone);
         function checkDone() {
           forks++;
-          if(forks > 2 * SIZE ) {
-            var stillAlive = _.intersection(oldWorkers, Object.keys(cluster.workers));
+          if (forks > 2 * SIZE ) {
+            var stillAlive = _.intersection(
+              oldWorkers, Object.keys(cluster.workers));
             debug('after a while, orig:', oldWorkers);
             debug('after a while, aliv:', stillAlive);
             // Note, exactly how many remain alive depends on relationship
@@ -654,7 +652,8 @@ describe('master', function() {
             // thought to be alive even if they aren't. So, the SIZE-2 is
             // arbitrary, a bit, but seems to be true for reasonable throttle
             // delays.
-            assert(stillAlive.length >= SIZE-2, 'most old workers are still alive');
+            assert(stillAlive.length >= SIZE - 2,
+                   'most old workers are still alive');
             delete process.env.cmd;
           } else {
             cluster.once('fork', checkDone);

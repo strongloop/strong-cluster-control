@@ -2,6 +2,7 @@
     "env": {
         "browser": false,
         "node": true,
+        "mocha": true,
         "amd": false
     },
 
