@@ -1,4 +1,4 @@
-'use strict;'
+'use strict';
 
 // Bail when run by mocha
 if ('describe' in global) {
@@ -31,7 +31,7 @@ function size() {
 
 control.on('resize', function() {
   console.log('reached size: ', summary());
-  if (size() == 0) {
+  if (size() === 0) {
     process.exit(0);
   }
   cluster.workers[1].disconnect();
