@@ -1,3 +1,9 @@
+2015-07-24, Version 2.1.2
+=========================
+
+ * test: update to pass eslint (Sam Roberts)
+
+
 2015-05-21, Version 2.1.1
 =========================
 
