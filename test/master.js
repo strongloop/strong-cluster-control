@@ -1,5 +1,5 @@
 var assert = require('assert');
-var cluster = require('cluster');
+var cluster = require('../lib/cluster');
 var net = require('net');
 var os = require('os');
 var util = require('util');

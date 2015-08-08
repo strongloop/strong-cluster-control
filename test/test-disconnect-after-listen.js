@@ -14,6 +14,7 @@ var fmt = require('util').format;
 
 if (cluster.isWorker) {
   console.log('worker starting');
+  require('net').createServer().listen(3000);
   return;
 }
 
@@ -29,7 +30,8 @@ function size() {
   return Object.keys(cluster.workers).length;
 }
 
-control.on('resize', function() {
+cluster.on('listening', function(worker, listen) {
+  console.log('listening: %j %j', worker.id, listen);
   console.log('reached size: ', summary());
   if (size() === 0) {
     process.exit(0);

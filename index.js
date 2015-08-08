@@ -1,7 +1,7 @@
 // cluster-control:
 
 var assert = require('assert');
-var cluster = require('cluster');
+var cluster = require('./lib/cluster');
 var VERSION = require('./package.json').version;
 
 if (cluster._strongControlMaster) {
