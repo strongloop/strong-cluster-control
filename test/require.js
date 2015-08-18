@@ -1,3 +1,5 @@
+/*eslint-env mocha*/
+
 var _ = require('lodash');
 var assert = require('assert');
 var control = require('../index');

@@ -1,3 +1,5 @@
+/*eslint-env mocha*/
+
 var assert = require('assert');
 var cluster = require('cluster');
 var net = require('net');

@@ -2,6 +2,8 @@
 
 // Bail when run by mocha
 if ('describe' in global) {
+  /*eslint-env mocha*/
+
   describe(module.parent.filename, function() {
     it.skip('run test with tap, not mocha', function(){});
   });

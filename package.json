@@ -18,7 +18,7 @@
   ],
   "main": "index.js",
   "scripts": {
-    "lint": "eslint . && jscs .",
+    "pretest": "eslint --ignore-path .gitignore . && jscs .",
     "test": "mocha --reporter spec",
     "tap": "tap test/test-*.js"
   },
@@ -35,7 +35,7 @@
     "lodash": "^3.0.0"
   },
   "devDependencies": {
-    "eslint": "^0.17.1",
+    "eslint": "^1.1.0",
     "jscs": "^1.11.3",
     "mocha": "^2.1.0",
     "tap": "^0.7.1"
