@@ -1,19 +1,9 @@
 'use strict';
 
-// Bail when run by mocha
-if ('describe' in global) {
-  /*eslint-env mocha*/
-
-  describe(module.parent.filename, function() {
-    it.skip('run test with tap, not mocha', function(){});
-  });
-  return;
-}
-
+var _ = require('lodash');
 var debug = require('debug')('strong-cluster-control:test');
 var cluster = require('cluster');
 var control = require('../');
-var tap = require('tap');
 
 var SIZE = global.SIZE;
 
@@ -23,18 +13,14 @@ if (cluster.isWorker) {
   return;
 }
 
+var tap = require('tap');
+
 tap.test('good workers are not killed', function(t) {
   var ended;
 
   control.start({size: SIZE});
 
-  function size() {
-    return Object.keys(cluster.workers).length;
-  }
-
   control.once('resize', function() {
-    if (ended) return;
-
     debug('reached size, restart');
     control.restart();
   });
@@ -42,9 +28,9 @@ tap.test('good workers are not killed', function(t) {
   cluster.on('exit', function(w) {
     if (ended) return;
 
-    debug('w %d died: alive %d', w.id, size());
+    debug('w %d died: alive %d', w.id, _.size(cluster.workers));
 
-    if (size() < SIZE) {
+    if (_.size(cluster.workers) < SIZE) {
       t.fail('good workers died');
       end();
     } else if (w.id > (SIZE + 3)) {
@@ -54,8 +40,10 @@ tap.test('good workers are not killed', function(t) {
   });
 
   function end() {
+    if (!ended) {
+      control.stop();
+      t.end();
+    }
     ended = true;
-    control.stop();
-    t.end();
   }
 });

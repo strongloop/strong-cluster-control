@@ -1,25 +1,17 @@
 'use strict';
 
-// Bail when run by mocha
-if ('describe' in global) {
-  /*eslint-env mocha*/
-  describe(module.parent.filename, function() {
-    it.skip('run test with tap, not mocha', function(){});
-  });
-  return;
-}
-
 var _ = require('lodash');
 var debug = require('debug')('strong-cluster-control:test');
 var cluster = require('cluster');
 var control = require('../');
-var tap = require('tap');
 
 var SIZE = 3;
 
 if (cluster.isWorker) {
   return;
 }
+
+var tap = require('tap');
 
 tap.test('good workers are not killed', function(t) {
   var old;
