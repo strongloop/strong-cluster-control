@@ -1,41 +1,40 @@
 'use strict';
 
-// Bail when run by mocha
-if ('describe' in global) {
-  describe(module.parent.filename, function() {
-    it.skip('run test with tap, not mocha', function(){});
-  });
-  return;
-}
-
 var cluster = require('cluster');
 var control = require('../');
+var debug = require('debug')('strong-cluster-control:test');
 var fmt = require('util').format;
 
 if (cluster.isWorker) {
-  console.log('worker starting');
+  debug('worker starting');
   return;
 }
 
-control.start({size: 1});
+var tap = require('tap');
 
-function summary() {
-  return Object.keys(cluster.workers).map(function(id) {
-    return fmt('%d:suicide=%j', id, cluster.workers[id].suicide);
-  }).join(' ');
-}
+tap.test('resize disconnected', function(t) {
+  control.start({size: 1});
 
-function size() {
-  return Object.keys(cluster.workers).length;
-}
+  control.once('resize', function() {
+    debug('reached size: ', summary());
 
-control.on('resize', function() {
-  console.log('reached size: ', summary());
-  if (size() === 0) {
-    process.exit(0);
+    cluster.workers[1].disconnect();
+    debug('disconnected:', summary());
+    control.setSize(0);
+    debug('resizing:', summary());
+
+    if (size() === 0) {
+      return control.stop(t.end);
+    }
+  });
+
+  function summary() {
+    return Object.keys(cluster.workers).map(function(id) {
+      return fmt('%d:suicide=%j', id, cluster.workers[id].suicide);
+    }).join(' ');
   }
-  cluster.workers[1].disconnect();
-  console.log('disconnected:', summary());
-  control.setSize(0);
-  console.log('resizing:', summary());
+
+  function size() {
+    return Object.keys(cluster.workers).length;
+  }
 });
