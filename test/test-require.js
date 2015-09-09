@@ -15,4 +15,6 @@ tap.test('require', function(t) {
     t.assert(_.isFinite(master.startTime));
     t.end();
   });
+
+  t.end();
 });

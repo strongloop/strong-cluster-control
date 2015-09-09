@@ -51,4 +51,6 @@ tap.test('should kill workers that refuse to die', function(t) {
   t.test('with shutdown', function(t) {
     assertWorkerIsKilledAfter('shutdown', t);
   });
+
+  t.end();
 });

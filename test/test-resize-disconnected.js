@@ -22,7 +22,9 @@ tap.test('resize disconnected', function(t) {
     debug('disconnected:', summary());
     control.setSize(0);
     debug('resizing:', summary());
+  });
 
+  control.on('resize', function() {
     if (size() === 0) {
       return control.stop(t.end);
     }

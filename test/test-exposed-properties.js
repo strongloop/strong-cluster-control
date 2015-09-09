@@ -20,4 +20,6 @@ tap.test('master should expose', function(t) {
     t.equal(master.cmd.SHUTDOWN, 'CLUSTER_CONTROL_shutdown');
     t.end();
   });
+
+  t.end();
 });

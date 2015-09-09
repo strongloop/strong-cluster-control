@@ -49,4 +49,6 @@ tap.test('should shutdown a worker with', function(t) {
       });
     }
   });
+
+  t.end();
 });

@@ -67,4 +67,6 @@ tap.test('should get resize event on return to configured size', function(t) {
       cluster.once('online', done);
     }, t);
   });
+
+  t.end();
 });
