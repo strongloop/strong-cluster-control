@@ -1,3 +1,17 @@
+2015-09-15, Version 2.2.0
+=========================
+
+ * package: upgrade to tap 1.4.1 (Sam Roberts)
+
+ * Refactor restart tests from mocha to tap (Sam Roberts)
+
+ * Update eslint to 1.x (Sam Roberts)
+
+ * Restart should start new then stop old (Sam Roberts)
+
+ * Use formatted debug statements (Sam Roberts)
+
+
 2015-07-24, Version 2.1.2
 =========================
 
