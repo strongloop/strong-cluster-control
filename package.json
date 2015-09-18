@@ -2,10 +2,7 @@
   "name": "strong-cluster-control",
   "version": "2.2.0",
   "description": "node cluster API wrapper and extensions",
-  "license": {
-    "name": "Dual Artistic/StrongLoop",
-    "url": "https://github.com/strongloop/strong-cluster-control/blob/master/LICENSE"
-  },
+  "license": "Artistic-2.0",
   "keywords": [
     "cluster",
     "forever",
