@@ -17,8 +17,6 @@ tap.test('good workers are not killed', function(t) {
   var old;
   control.start({size: SIZE});
 
-  t.plan(1);
-
   control.once('resize', function() {
     debug('reached size, restart');
     control.restart();
@@ -35,6 +33,20 @@ tap.test('good workers are not killed', function(t) {
     debug('old %j fresh %j remaining: %j', old, fresh, remaining);
 
     t.equal(remaining.length, 0);
+    t.end();
+
+    cluster.removeListener('fork', checkStatus);
+    cluster.removeListener('exit', checkStatus);
+
     control.stop();
   });
+
+  cluster.on('fork', checkStatus);
+  cluster.on('exit', checkStatus);
+
+  function checkStatus() {
+    var status = control.status().master;
+    debug('status: %j', status);
+    t.equal(status.setSize, SIZE);
+  }
 });
