@@ -1,3 +1,13 @@
+2015-10-01, Version 2.2.1
+=========================
+
+ * Sort workers by numeric value of worker ID (Sam Roberts)
+
+ * status: preserve the cluster size during restart (Sam Roberts)
+
+ * Use strongloop conventions for licensing (Sam Roberts)
+
+
 2015-09-15, Version 2.2.0
 =========================
 
