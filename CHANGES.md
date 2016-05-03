@@ -1,3 +1,11 @@
+2016-05-03, Version 2.2.3
+=========================
+
+ * update/insert copyright notices (Ryan Graham)
+
+ * relicense as Artistic-2.0 only (Ryan Graham)
+
+
 2016-04-11, Version 2.2.2
 =========================
 
