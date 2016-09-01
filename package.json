@@ -16,7 +16,7 @@
   "main": "index.js",
   "scripts": {
     "pretest": "eslint --ignore-path .gitignore . && jscs .",
-    "test": "tap --bail test/test-*.js"
+    "test": "tap ./test/test-*"
   },
   "repository": {
     "type": "git",
@@ -33,7 +33,7 @@
   "devDependencies": {
     "eslint": "^1.1.0",
     "jscs": "^1.11.3",
-    "tap": "^1.4.1"
+    "tap": "^7.0.0"
   },
   "engines": {
     "node": "*"

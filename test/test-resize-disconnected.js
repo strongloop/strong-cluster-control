@@ -27,12 +27,12 @@ tap.test('resize disconnected', function(t) {
     debug('disconnected:', summary());
     control.setSize(0);
     debug('resizing:', summary());
-  });
 
-  control.on('resize', function() {
-    if (size() === 0) {
-      return control.stop(t.end);
-    }
+    control.once('resize', function() {
+      console.log('resize %d', size());
+      t.equal(size(), 0);
+      control.stop(t.end);
+    });
   });
 
   function summary() {
