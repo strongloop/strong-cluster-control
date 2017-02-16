@@ -15,8 +15,8 @@
   ],
   "main": "index.js",
   "scripts": {
-    "pretest": "eslint --ignore-path .gitignore . && jscs .",
-    "test": "tap --bail test/test-*.js"
+    "pretest": "eslint --ignore-path .gitignore .",
+    "test": "tap test/test-*.js"
   },
   "repository": {
     "type": "git",
@@ -31,8 +31,8 @@
     "lodash": "^3.0.0"
   },
   "devDependencies": {
-    "eslint": "^1.1.0",
-    "jscs": "^1.11.3",
+    "eslint": "^2.13.1",
+    "eslint-config-strongloop": "^2.1.0",
     "tap": "^1.4.1"
   },
   "engines": {
