@@ -44,7 +44,7 @@ if(cluster.isWorker) {
 
 ## API
 
-See http://apidocs.strongloop.com/strong-cluster-control/
+See [api](./api.md).
 
 
 ## License
