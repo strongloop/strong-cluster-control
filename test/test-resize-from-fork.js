@@ -3,23 +3,25 @@
 // This file is licensed under the Artistic License 2.0.
 // License text available at https://opensource.org/licenses/Artistic-2.0
 
-'use strict';
+"use strict";
 
-var _ = require('lodash');
-var cluster = require('cluster');
-var master = require('../lib/master');
-var tap = require('tap');
-var workerCount = require('./helpers').workerCount;
+var _ = require("lodash");
+var cluster = require("cluster");
+var masterGenerator = require("../lib/master");
+var tap = require("tap");
+var workerCount = require("./helpers").workerCount;
+
+var master = masterGenerator();
 
 cluster.setupMaster({
-  exec: 'test/workers/null.js'
+  exec: "test/workers/null.js"
 });
 
-tap.test('should resize from a fork before start', function(t) {
+tap.test("should resize from a fork before start", function(t) {
   var sawNewWorker = 0;
   cluster.fork();
-  master.start({size: 3});
-  master.once('startWorker', function startWorker(worker) {
+  master.start({ size: 3 });
+  master.once("startWorker", function startWorker(worker) {
     // Make sure our argument is really a worker.
     t.assert(worker);
     t.assert(worker.id);
@@ -32,7 +34,7 @@ tap.test('should resize from a fork before start', function(t) {
       t.equal(workerCount(), 3);
       t.end();
     }
-    master.once('startWorker', startWorker);
+    master.once("startWorker", startWorker);
   });
-  t.on('end', master.stop);
+  t.on("end", master.stop);
 });
