@@ -3,26 +3,28 @@
 // This file is licensed under the Artistic License 2.0.
 // License text available at https://opensource.org/licenses/Artistic-2.0
 
-'use strict';
+"use strict";
 
-var cluster = require('cluster');
-var master = require('../lib/master');
-var tap = require('tap');
+var cluster = require("cluster");
+var masterGenerator = require("../lib/master");
+var tap = require("tap");
+
+var master = masterGenerator();
 
 cluster.setupMaster({
-  exec: 'test/workers/null.js'
+  exec: "test/workers/null.js"
 });
 
-tap.test('should start and stop', function(t) {
-  t.test('notifying with events', function(t) {
+tap.test("should start and stop", function(t) {
+  t.test("notifying with events", function(t) {
     master.start();
-    master.once('start', function() {
+    master.once("start", function() {
       master.stop();
-      master.once('stop', t.end);
+      master.once("stop", t.end);
     });
   });
 
-  t.test('notifying with callbacks', function(t) {
+  t.test("notifying with callbacks", function(t) {
     master.start(function() {
       master.stop(t.end);
     });

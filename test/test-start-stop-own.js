@@ -3,21 +3,22 @@
 // This file is licensed under the Artistic License 2.0.
 // License text available at https://opensource.org/licenses/Artistic-2.0
 
-'use strict';
+"use strict";
 
-var cluster = require('cluster');
-var master = require('../lib/master');
-var tap = require('tap');
-var workerCount = require('./helpers').workerCount;
+var cluster = require("cluster");
+var masterGenerator = require("../lib/master");
+var tap = require("tap");
+var workerCount = require("./helpers").workerCount;
 
+var master = masterGenerator();
 cluster.setupMaster({
-  exec: 'test/workers/null.js'
+  exec: "test/workers/null.js"
 });
 
-tap.test('should stop workers it started', function(t) {
+tap.test("should stop workers it started", function(t) {
   process.throwDeprecation = true;
-  master.start({size: 1}, function() {
-    master.once('resize', function() {
+  master.start({ size: 1 }, function() {
+    master.once("resize", function() {
       master.stop(function() {
         t.equal(workerCount(), 0);
         t.end();
@@ -26,10 +27,10 @@ tap.test('should stop workers it started', function(t) {
   });
 });
 
-tap.test('should not stop workers it did not start', function(t) {
+tap.test("should not stop workers it did not start", function(t) {
   master.start(function() {
     cluster.fork();
-    cluster.once('online', function() {
+    cluster.once("online", function() {
       t.equal(workerCount(), 1);
       master.stop(function() {
         t.equal(workerCount(), 1);

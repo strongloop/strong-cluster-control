@@ -3,19 +3,20 @@
 // This file is licensed under the Artistic License 2.0.
 // License text available at https://opensource.org/licenses/Artistic-2.0
 
-'use strict';
+"use strict";
 
-var cluster = require('cluster');
-var master = require('../lib/master');
-var tap = require('tap');
+var cluster = require("cluster");
+var masterGenerator = require("../lib/master");
+var tap = require("tap");
 
+var master = masterGenerator();
 cluster.setupMaster({
-  exec: 'test/workers/null.js'
+  exec: "test/workers/null.js"
 });
 
-tap.test('set size', function(t) {
-  t.test('should set in options when changed', function(t) {
-    master.start({size: 0});
+tap.test("set size", function(t) {
+  t.test("should set in options when changed", function(t) {
+    master.start({ size: 0 });
     t.equal(master.options.size, 0);
     t.equal(master.size, 0);
     t.equal(master.status().master.setSize, 0);
@@ -26,10 +27,10 @@ tap.test('set size', function(t) {
     t.end();
   });
 
-  t.test('should emit when set', function(t) {
-    master.start({size: 0});
+  t.test("should emit when set", function(t) {
+    master.start({ size: 0 });
     master.setSize(0);
-    master.once('setSize', function(size) {
+    master.once("setSize", function(size) {
       t.equal(size, 0);
       t.end();
     });
