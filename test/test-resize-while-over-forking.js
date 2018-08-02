@@ -3,20 +3,22 @@
 // This file is licensed under the Artistic License 2.0.
 // License text available at https://opensource.org/licenses/Artistic-2.0
 
-'use strict';
+"use strict";
 
-var cluster = require('cluster');
-var master = require('../lib/master');
-var tap = require('tap');
-var workerCount = require('./helpers').workerCount;
+var cluster = require("cluster");
+var masterGenerator = require("../lib/master");
+var tap = require("tap");
+var workerCount = require("./helpers").workerCount;
+
+var master = masterGenerator();
 
 cluster.setupMaster({
-  exec: 'test/workers/null.js'
+  exec: "test/workers/null.js"
 });
 
-tap.test('while too many workers are forked', function(t) {
-  master.start({size: 5});
-  master.on('startWorker', function() {
+tap.test("while too many workers are forked", function(t) {
+  master.start({ size: 5 });
+  master.on("startWorker", function() {
     if (workerCount() === 3) {
       cluster.fork();
       cluster.fork();
@@ -24,7 +26,7 @@ tap.test('while too many workers are forked', function(t) {
       cluster.fork();
     }
   });
-  master.once('resize', function(size) {
+  master.once("resize", function(size) {
     t.equal(size, 5);
     master.stop(t.end);
   });

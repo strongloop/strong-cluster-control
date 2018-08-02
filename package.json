@@ -1,6 +1,6 @@
 {
-  "name": "strong-cluster-control",
-  "version": "2.2.3",
+  "name": "strong-cluster-control-electrode",
+  "version": "102.2.3",
   "description": "node cluster API wrapper and extensions",
   "license": "Artistic-2.0",
   "keywords": [
