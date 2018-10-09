@@ -1,3 +1,15 @@
+2018-10-09, Version 2.2.4
+=========================
+
+ * fix: package.json to reduce vulnerabilities (snyk-bot)
+
+ * package: correct doc link (Sam Roberts)
+
+ * package: replace jscs with eslint 2.x (Sam Roberts)
+
+ * Update URLs in CONTRIBUTING.md (#60) (Ryan Graham)
+
+
 2016-05-03, Version 2.2.3
 =========================
 
